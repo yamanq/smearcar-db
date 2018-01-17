@@ -6,7 +6,8 @@ import random
 app = Flask(__name__)
 
 try:
-    database = pickle.load(open("save.p", "rb"))
+    with open("save.p", "rb") as f:
+        database = pickle.load(f)
 except (FileNotFoundError) as e:
     database = {'languages': [],
                 'phonemes': [],
@@ -29,20 +30,22 @@ def backend():
     # TODO add more methods
     elif request.method == "POST":
         newlanguage = request.get_json()
-        database.values.append(newlanguage)
+        database['values'].append(newlanguage)
 
         # Add new phonemes
-        newphonemes = list(newlanguage.phonemes)
-        uniquephonemes = list(set(newphonemes) - set(database.phonemes))
-        database.phonemes = database.phonemes + uniquephonemes
+        newphonemes = list(newlanguage[ 'phonemes' ])
+        uniquephonemes = list(set(newphonemes) - set(database[ 'phonemes' ]))
+        database['phonemes'] = database['phonemes'] + uniquephonemes
 
         # Add new language
-        newlang = list(newlanguage.name)
-        uniquelanguages = list(set(newlang) - set(database.languages))
-        database.languages = database.languages + uniquelanguages
+        newlang = {newlanguage['name']}
+        uniquelanguages = list(newlang - set(database['languages']))
+        database['languages'] = database['languages'] + uniquelanguages
 
+        # Save copy under separate name
+        with open("newestsave.p", "wb") as f:
+            pickle.dump(database, f)
 
-        pickle.dump(database, open("newestsave.p", "wb"))
         return jsonify(database)
 
     else:
