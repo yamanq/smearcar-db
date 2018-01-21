@@ -1,5 +1,5 @@
 var navSelect = "home";
-var serverURL = "http://0.0.0.0:5000";
+var serverURL = "http://localhost:5000";
 var data;
 
 var navi = [ // Array containing navigation items in form [Font-Awesome class name, Display Text, Onclick function].
