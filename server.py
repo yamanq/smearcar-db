@@ -39,7 +39,7 @@ def backend():
     if request.method == "GET":
         return jsonify(database)
 
-    # POST method currently appends to the languages
+    # POST method appends input to database['values']
     elif request.method == "POST":
         newlanguage = request.get_json()
         newlanguage['id'] = ulid.new().str
