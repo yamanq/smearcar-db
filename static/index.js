@@ -81,11 +81,28 @@ function getData() {
 function language(language) {
     return data.values.filter(function(element) {
         return element.name === language;
-    });
+    })[0];
 }
 
-function generateDropOp() {
-    dropOp["langSelect"] = ["Select language..."].concat(data.languages);
+function generateDropOp() { // For options that change based on data.
+    dropOp["langSelect"] = [function() {
+        var info = document.getElementById("langInfoCont");
+        while(info.firstChild) {
+            info.removeChild(info.firstChild);
+        }
+        var p = document.createElement("p")
+        var p2 = document.createElement("p2");
+        var a = document.createElement("a");
+        var langInfo = language(dropOpStore["langSelect"]);
+        p.appendChild(document.createTextNode("Type: " + langInfo.type));
+        p2.appendChild(document.createTextNode("Source: "));
+        a.href = langInfo.source;
+        srcText = (langInfo.source.length > 60) ? langInfo.source.substring(0,langInfo.source.length-3) + "..." : langInfo.source;
+        a.appendChild(document.createTextNode(srcText));
+        p2.appendChild(a);
+        info.appendChild(p);
+        info.appendChild(p2);
+    }].concat(["Select language..."].concat(data.languages));
 }
 
 function createDrop() {
@@ -95,7 +112,7 @@ function createDrop() {
         div.className = "button";
         var p = document.createElement("p");
         var op = dropButtons[i].getAttribute("option");
-        p.appendChild(document.createTextNode(dropOp[op][0]));
+        p.appendChild(document.createTextNode(dropOp[op][1]));
         var ic = document.createElement("i");
         ic.className = "fa fa-angle-down";
         ic["aria-hidden"] = true;
@@ -103,7 +120,7 @@ function createDrop() {
         div.appendChild(ic);
         var div2 = document.createElement("div");
         div2.className = "opCont transition";
-        for(var j = 1; j < dropOp[op].length; j++) {
+        for(var j = 2; j < dropOp[op].length; j++) {
             var p2 = document.createElement("p");
             p2.className = "transition";
             p2.onclick = function(e) {
@@ -142,6 +159,8 @@ function createDrop() {
 function dropOpUpdate(op) {
     var dropdown = document.querySelectorAll(".dropdown[option="+op+"] .button p")[0];
     dropdown.textContent = dropOpStore[op];
+    console.log("hi");
+    (dropOp[op][0])();
 }
 
 document.onclick = function(event) {
