@@ -1,5 +1,5 @@
 var navSelect = "home";
-var serverURL = "http://0.0.0.0:5000";
+var serverURL = "http://localhost:5000";
 var data;
 
 var navi = [ // Array containing navigation items in form [Font-Awesome class name, Display Text, Onclick function].
@@ -55,18 +55,18 @@ function updateNav(op) {
 
 function getData() {
     $.ajax({
-            url: serverURL + '/server',
-            type: 'GET'
-        })
-        .then(
-            function success(incoming) {
-                data = incoming;
-            },
-            function error(e) {
-                console.log(e);
-            }
-        );
-    console.log(data);
+        url: serverURL + '/server',
+        type: 'GET'
+    })
+    .then(
+        function success(incoming) {
+            data = incoming;
+            console.log(data);
+        },
+        function error(e) {
+            console.log(e);
+        }
+    );
 }
 
 function language(language) {

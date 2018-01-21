@@ -12,7 +12,6 @@ app.config.update(
 try:
     with open("save.p", "rb") as f:
         database = pickle.load(f)
-        print("Loaded", database)
 except (FileNotFoundError) as e:
     database = {'languages': [],
                 'phonemes': [],
