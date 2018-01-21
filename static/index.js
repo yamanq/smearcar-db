@@ -17,7 +17,7 @@ var dropOp = {
 
 var dropOpStore = {};
 
-function createNav() { 
+function createNav() {
     for (var i = 0; i < navi.length; i++) { // Create navigation tabs.
         var side = document.getElementById("sidebar");
         var div = document.createElement("div");
@@ -36,7 +36,7 @@ function createNav() {
         div.appendChild(ic);
         div.appendChild(p);
         side.appendChild(div);
-    }   
+    }
 }
 
 function updateMain(op) {
@@ -84,20 +84,36 @@ function language(language) {
     })[0];
 }
 
+function phoneme(p) {
+    return data.values.map(function(language) {
+        obj = {};
+        if (language.phonemes[p] !== undefined) {
+            obj[language.name] = language.phonemes[p];
+            return obj;
+        }
+        return undefined;
+    }).filter(function(a) {
+        if (a === undefined) {
+            return false;
+        }
+        return true;
+    });
+}
+
 function generateDropOp() { // For options that change based on data.
     dropOp["langSelect"] = [function() {
         var info = document.getElementById("langInfoCont");
-        while(info.firstChild) {
+        while (info.firstChild) {
             info.removeChild(info.firstChild);
         }
-        var p = document.createElement("p")
+        var p = document.createElement("p");
         var p2 = document.createElement("p2");
         var a = document.createElement("a");
         var langInfo = language(dropOpStore["langSelect"]);
         p.appendChild(document.createTextNode("Type: " + langInfo.type));
         p2.appendChild(document.createTextNode("Source: "));
         a.href = langInfo.source;
-        srcText = (langInfo.source.length > 60) ? langInfo.source.substring(0,langInfo.source.length-3) + "..." : langInfo.source;
+        srcText = (langInfo.source.length > 60) ? langInfo.source.substring(0, langInfo.source.length - 3) + "..." : langInfo.source;
         a.appendChild(document.createTextNode(srcText));
         p2.appendChild(a);
         info.appendChild(p);
@@ -107,7 +123,7 @@ function generateDropOp() { // For options that change based on data.
 
 function createDrop() {
     var dropButtons = document.getElementsByClassName("dropdown");
-    for(var i = 0; i < dropButtons.length; i++) {
+    for (var i = 0; i < dropButtons.length; i++) {
         var div = document.createElement("div");
         div.className = "button";
         var p = document.createElement("p");
@@ -120,7 +136,7 @@ function createDrop() {
         div.appendChild(ic);
         var div2 = document.createElement("div");
         div2.className = "opCont transition";
-        for(var j = 2; j < dropOp[op].length; j++) {
+        for (var j = 2; j < dropOp[op].length; j++) {
             var p2 = document.createElement("p");
             p2.className = "transition";
             p2.onclick = function(e) {
@@ -139,7 +155,7 @@ function createDrop() {
         div.onclick = function(e) {
             e.stopPropagation();
             let opCont = this.nextElementSibling;
-            if(opCont.style.display === "block") {
+            if (opCont.style.display === "block") {
                 opCont.style.opacity = "0";
                 setTimeout(function() {
                     opCont.style.display = "none";
@@ -157,14 +173,14 @@ function createDrop() {
 }
 
 function dropOpUpdate(op) {
-    var dropdown = document.querySelectorAll(".dropdown[option="+op+"] .button p")[0];
+    var dropdown = document.querySelectorAll(".dropdown[option=" + op + "] .button p")[0];
     dropdown.textContent = dropOpStore[op];
     console.log("hi");
     (dropOp[op][0])();
 }
 
 document.onclick = function(event) {
-    for(var i = 0 ; i < document.getElementsByClassName("dropdown").length; i++) {
+    for (var i = 0; i < document.getElementsByClassName("dropdown").length; i++) {
         var opCont = document.querySelectorAll(".dropdown .opCont")[i];
         opCont.style.opacity = "0";
         setTimeout(function() {
