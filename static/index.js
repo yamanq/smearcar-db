@@ -1,5 +1,5 @@
 var navSelect = "home";
-var serverURL = "http://localhost:5000";
+var serverURL = window.location.href;
 var data;
 
 
@@ -63,24 +63,23 @@ function updateNav(op) {
 
 function getData() {
     $.ajax({
-        url: serverURL + '/server',
-        type: 'GET'
-    })
-    .then(
-        function success(incoming) {
-            data = incoming;
-            generateDropOp();
-            createDrop();
-            console.log(data);
-        },
-        function error(e) {
-            console.log(e);
-        }
-    );
+            url: serverURL + 'server',
+            type: 'GET'
+        })
+        .then(
+            function success(incoming) {
+                data = incoming;
+                generateDropOp();
+                createDrop();
+            },
+            function error(e) {
+                console.log(e);
+            }
+        );
 }
 
 function language(language) {
-    return data.languages.filter(function(element) {
+    return data.values.filter(function(element) {
         return element.name === language;
     });
 }
