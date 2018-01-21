@@ -4,6 +4,10 @@ from flask import render_template, jsonify, request
 import time
 import random
 app = Flask(__name__)
+app.config.update(
+    DEBUG=True,
+    TEMPLATES_AUTO_RELOAD=True
+)
 
 try:
     with open("save.p", "rb") as f:
