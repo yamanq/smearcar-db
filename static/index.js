@@ -2,6 +2,7 @@ var navSelect = "home";
 var serverURL = "http://localhost:5000";
 var data;
 
+
 var navi = [ // Array containing navigation items in form [Font-Awesome class name, Display Text, Onclick function].
     ["home", "Home", "home"],
     ["bar-chart", "Data Values", "dataValues"],
@@ -9,27 +10,34 @@ var navi = [ // Array containing navigation items in form [Font-Awesome class na
     ["bell", "Updates and Progress", "updates"]
 ];
 
-for (var i = 0; i < navi.length; i++) { // Create navigation tabs.
-    var side = document.getElementById("sidebar");
-    var div = document.createElement("div");
-    div.className = "navi transition";
-    div.setAttribute("option", navi[i][2]);
-    div.onclick = function() {
-        var op = this.getAttribute("option");
-        if (navSelect === op) return;
-        updateMain(op);
-    };
-    var ic = document.createElement("i");
-    ic.className = "fa fa-" + navi[i][0];
-    ic["aria-hidden"] = true;
-    var p = document.createElement("p");
-    p.appendChild(document.createTextNode(navi[i][1]));
-    div.appendChild(ic);
-    div.appendChild(p);
-    side.appendChild(div);
-}
+var dropOp = {
+    //Insert correct   
+};
 
-updateNav(navSelect);
+
+var dropOpStore = {};
+
+function createNav() { 
+    for (var i = 0; i < navi.length; i++) { // Create navigation tabs.
+        var side = document.getElementById("sidebar");
+        var div = document.createElement("div");
+        div.className = "navi transition";
+        div.setAttribute("option", navi[i][2]);
+        div.onclick = function() {
+            var op = this.getAttribute("option");
+            if (navSelect === op) return;
+            updateMain(op);
+        };
+        var ic = document.createElement("i");
+        ic.className = "fa fa-" + navi[i][0];
+        ic["aria-hidden"] = true;
+        var p = document.createElement("p");
+        p.appendChild(document.createTextNode(navi[i][1]));
+        div.appendChild(ic);
+        div.appendChild(p);
+        side.appendChild(div);
+    }   
+}
 
 function updateMain(op) {
     updateNav(op);
@@ -61,6 +69,8 @@ function getData() {
     .then(
         function success(incoming) {
             data = incoming;
+            generateDropOp();
+            createDrop();
             console.log(data);
         },
         function error(e) {
@@ -74,3 +84,77 @@ function language(language) {
         return element.name === language;
     });
 }
+
+function generateDropOp() {
+    dropOp["langSelect"] = ["Select language..."].concat(data.languages);
+}
+
+function createDrop() {
+    var dropButtons = document.getElementsByClassName("dropdown");
+    for(var i = 0; i < dropButtons.length; i++) {
+        var div = document.createElement("div");
+        div.className = "button";
+        var p = document.createElement("p");
+        var op = dropButtons[i].getAttribute("option");
+        p.appendChild(document.createTextNode(dropOp[op][0]));
+        var ic = document.createElement("i");
+        ic.className = "fa fa-angle-down";
+        ic["aria-hidden"] = true;
+        div.appendChild(p);
+        div.appendChild(ic);
+        var div2 = document.createElement("div");
+        div2.className = "opCont transition";
+        for(var j = 1; j < dropOp[op].length; j++) {
+            var p2 = document.createElement("p");
+            p2.className = "transition";
+            p2.onclick = function(e) {
+                e.stopPropagation();
+                dropOpStore[op] = this.textContent;
+                dropOpUpdate(op);
+                let opCont = this.parentNode;
+                opCont.style.opacity = "0";
+                setTimeout(function() {
+                    opCont.style.display = "none";
+                }, 300);
+            };
+            p2.appendChild(document.createTextNode(dropOp[op][j]));
+            div2.appendChild(p2);
+        }
+        div.onclick = function(e) {
+            e.stopPropagation();
+            let opCont = this.nextElementSibling;
+            if(opCont.style.display === "block") {
+                opCont.style.opacity = "0";
+                setTimeout(function() {
+                    opCont.style.display = "none";
+                }, 300);
+            } else {
+                opCont.style.display = "block";
+                setTimeout(function() {
+                    opCont.style.opacity = "1";
+                }, 30);
+            }
+        };
+        dropButtons[i].appendChild(div);
+        dropButtons[i].appendChild(div2);
+    }
+}
+
+function dropOpUpdate(op) {
+    var dropdown = document.querySelectorAll(".dropdown[option="+op+"] .button p")[0];
+    dropdown.textContent = dropOpStore[op];
+}
+
+document.onclick = function(event) {
+    for(var i = 0 ; i < document.getElementsByClassName("dropdown").length; i++) {
+        var opCont = document.querySelectorAll(".dropdown .opCont")[i];
+        opCont.style.opacity = "0";
+        setTimeout(function() {
+            opCont.style.display = "none";
+        }, 300);
+    }
+}
+
+getData();
+createNav();
+updateNav(navSelect);
