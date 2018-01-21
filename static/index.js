@@ -66,11 +66,10 @@ function getData() {
                 console.log(e);
             }
         );
-    console.log(data);
 }
 
 function language(language) {
-    return data.languages.filter(function(element) {
+    return data.values.filter(function(element) {
         return element.name === language;
     });
 }
