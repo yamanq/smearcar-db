@@ -1,6 +1,7 @@
 var navSelect = "home";
-var serverURL = window.location.href;
+var serverURL = window.location.origin;
 var data;
+var trelloInfo = {};
 
 
 var navi = [ // Array containing navigation items in form [Font-Awesome class name, Display Text, Onclick function].
@@ -8,6 +9,10 @@ var navi = [ // Array containing navigation items in form [Font-Awesome class na
     ["bar-chart", "Data Values", "dataValues"],
     ["database", "Database and Files", "files"],
     ["bell", "Updates and Progress", "updates"]
+];
+
+var members = [
+    "Kenneth Jao", "Yaman Qalieh", "Enrico Colon", "Arav Agarwal"
 ];
 
 var dropOp = {
@@ -63,7 +68,7 @@ function updateNav(op) {
 
 function getData() {
     $.ajax({
-            url: serverURL + 'server',
+            url: serverURL + '/server',
             type: 'GET'
         })
         .then(
@@ -93,31 +98,75 @@ function phoneme(p) {
         }
         return undefined;
     }).filter(function(a) {
-        if (a === undefined) {
-            return false;
-        }
-        return true;
+        return (a !== undefined);
     });
 }
 
 function generateDropOp() { // For options that change based on data.
     dropOp["langSelect"] = [function() {
-        var info = document.getElementById("langInfoCont");
-        while (info.firstChild) {
-            info.removeChild(info.firstChild);
-        }
-        var p = document.createElement("p");
-        var p2 = document.createElement("p2");
-        var a = document.createElement("a");
+        // Generate info box material.
         var langInfo = language(dropOpStore["langSelect"]);
-        p.appendChild(document.createTextNode("Type: " + langInfo.type));
-        p2.appendChild(document.createTextNode("Source: "));
-        a.href = langInfo.source;
-        srcText = (langInfo.source.length > 60) ? langInfo.source.substring(0, langInfo.source.length - 3) + "..." : langInfo.source;
-        a.appendChild(document.createTextNode(srcText));
-        p2.appendChild(a);
-        info.appendChild(p);
-        info.appendChild(p2);
+        var info = document.getElementById("langInfoCont");
+        info.style.opacity = "0";
+        setTimeout(function() {
+            while (info.firstChild) {
+                info.removeChild(info.firstChild);
+            }
+            var p = document.createElement("p");
+            var p2 = document.createElement("p");
+            var a = document.createElement("a");
+            p.appendChild(document.createTextNode("Type: " + (langInfo.type || "N/A")));
+            p2.appendChild(document.createTextNode("Source: "));
+            if(langInfo.source.length > 0) {
+                a.href = langInfo.source;
+                srcText = (langInfo.source.length > 60) ? langInfo.source.substring(0, langInfo.source.length - 3) + "..." : langInfo.source;
+                a.appendChild(document.createTextNode(srcText));
+                p2.appendChild(a); 
+            } else {
+                p2.appendChild(document.createTextNode("N/A"));
+            }
+            info.appendChild(p);
+            info.appendChild(p2);
+            info.style.opacity = "1";
+        }, 300);
+        // Generate data box material.
+        var dataBox = document.getElementById("dataTableCont");
+        var phonemes = Object.keys(langInfo.phonemes);
+        dataBox.style.opacity = "0";
+        setTimeout(function() {
+            while (dataBox.firstChild) {
+                dataBox.removeChild(dataBox.firstChild);
+            }
+            dataBox.style.gridTemplateColumns = "repeat("+Math.ceil(phonemes.length/6).toString() + ", 1fr)";
+            for(var i = 0; i < 9; i++) dataBox.appendChild(document.createElement("div")); // Extra divs will be filled if necessary.
+            for(i = 0; i < phonemes.length; i++) {
+                var tableNum = Math.floor(i/6);
+                var row = i+2-tableNum*7;
+                var p1 = document.createElement("p");
+                var p2 = document.createElement("p");
+                p1.style.textAlign = "right";
+                p2.style.textAlign = "left";
+                p1.style.borderRight = "1px solid #D5D5D5";
+                if(i%6 === 0) {
+                    var pT1 = document.createElement("p");
+                    var pT2 = document.createElement("p");
+                    pT1.style.textAlign = "right";
+                    pT2.style.textAlign = "left";
+                    pT1.style.borderRight = "1px solid #D5D5D5";
+                    pT1.style.borderBottom = "1px solid #D5D5D5";
+                    pT2.style.borderBottom = "1px solid #D5D5D5";
+                    pT1.appendChild(document.createTextNode("Phoneme"));
+                    pT2.appendChild(document.createTextNode("Percent"));
+                    dataBox.children[tableNum].appendChild(pT1);
+                    dataBox.children[tableNum].appendChild(pT2);
+                } 
+                p1.appendChild(document.createTextNode(phonemes[i]));
+                p2.appendChild(document.createTextNode(langInfo.phonemes[phonemes[i]])); 
+                dataBox.children[tableNum].appendChild(p1);
+                dataBox.children[tableNum].appendChild(p2);
+            }
+            dataBox.style.opacity = "1";
+        }, 300);
     }].concat(["Select language..."].concat(data.languages));
 }
 
@@ -175,7 +224,6 @@ function createDrop() {
 function dropOpUpdate(op) {
     var dropdown = document.querySelectorAll(".dropdown[option=" + op + "] .button p")[0];
     dropdown.textContent = dropOpStore[op];
-    console.log("hi");
     (dropOp[op][0])();
 }
 
@@ -189,6 +237,34 @@ document.onclick = function(event) {
     }
 }
 
+function getTrelloCards() {
+    Trello.authorize();
+    var cardArr, listArr, lists;
+    var cards = window.Trello.rest(
+        "GET", "boards/vm2c2IZd/cards", 
+        function success() {
+            cardArr = JSON.parse(cards.responseText);
+            lists = window.Trello.rest(
+            "GET", "boards/vm2c2IZd/lists",
+            function success() {
+                listArr = JSON.parse(lists.responseText);
+                for(var i = 0; i < listArr.length; i++) {
+                    var arr = cardArr.filter(function(obj) {
+                        return obj.idList === listArr[i].id;
+                    }).map(a => a.name);
+                    trelloInfo[listArr[i].name] = arr;
+                }
+            },
+            function error(e) {
+                console.log(e);
+            });
+        },
+        function error(e) {
+            console.log(e);
+    });
+}
+
 getData();
+getTrelloCards();
 createNav();
 updateNav(navSelect);

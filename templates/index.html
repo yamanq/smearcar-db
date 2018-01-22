@@ -12,6 +12,7 @@
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
     <script src="{{ url_for('static', filename='velocity.min.js') }}"></script>
     <script src="https://use.fontawesome.com/c8d5486cd8.js"></script>
+    <script src="https://trello.com/1/client.js?key=dd3d6b561fe1a0abcacdc80ad0c4fd9a"></script>
 </head>
 
 <body>
@@ -24,6 +25,14 @@
     </div>
     <div id="mainContainer">
         <div id="home" class="optionContainer">
+            <div id="roles" class="card">
+            </div>
+            <div id="about" class="card">
+            </div>
+            <div id="tasks">
+            </div>
+        </div>
+        <div id="dataValues" class="optionContainer">
             <div id="langSelect" class="card">
                 <h2>Language</h2>
                 <div option="langSelect" class="dropdown transition">
@@ -32,35 +41,22 @@
             <div id="dataInfo" class="card">
                 <h2>Info</h2>
                 <div id="langInfoCont">
-                    
                 </div>
             </div>
             <div id="dataTable" class="card">
                 <h2>Data</h2>
-            </div>
-        </div>
-        <div id="dataValues" class="optionContainer">
-            <div id="langSelect" class="card">
-            </div>
-            <div id="dataInfo" class="card">
-            </div>
-            <div id="dataTable" class="card">
+                <div id="dataTableCont">
+                </div>
             </div>
         </div>
         <div id="files" class="optionContainer">
-            <div id="langSelect" class="card">
-            </div>
-            <div id="dataInfo" class="card">
-            </div>
-            <div id="dataTable" class="card">
+            <div class="temp card">
+                <h2>Currently in progress!</h2>
             </div>
         </div>
         <div id="updates" class="optionContainer">
-            <div id="langSelect" class="card">
-            </div>
-            <div id="dataInfo" class="card">
-            </div>
-            <div id="dataTable" class="card">
+            <div class="temp card">
+                <h2>Currently in progress!</h2>
             </div>
         </div>
     </div>
