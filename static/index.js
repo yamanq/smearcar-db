@@ -8,7 +8,7 @@ var navi = [ // Array containing navigation items in form [Font-Awesome class na
     ["home", "Home", "home"],
     ["bar-chart", "Data Values", "dataValues"],
     ["database", "Database and Files", "files"],
-    ["bell", "Updates and Progress", "updates"]
+    ["info", "About", "about"]
 ];
 
 var members = [
@@ -128,7 +128,7 @@ function generateDropOp() { // For options that change based on data.
             info.appendChild(p);
             info.appendChild(p2);
             info.style.opacity = "1";
-        }, 300);
+        }, 400);
         // Generate data box material.
         var dataBox = document.getElementById("dataTableCont");
         var phonemes = Object.keys(langInfo.phonemes);
@@ -166,7 +166,7 @@ function generateDropOp() { // For options that change based on data.
                 dataBox.children[tableNum].appendChild(p2);
             }
             dataBox.style.opacity = "1";
-        }, 300);
+        }, 400);
     }].concat(["Select language..."].concat(data.languages));
 }
 

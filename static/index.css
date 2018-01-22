@@ -191,7 +191,7 @@ a {
 
 /* Main Body */
 
-#home, #dataValues, #files, #updates {
+#home, #dataValues, #files, #about {
 	display: none;
 
 	height: 100%;
