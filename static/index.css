@@ -15,7 +15,7 @@ body {
 	color: white;
 	font-family: 'Open Sans Condensed', sans-serif;
 
-	grid-template-columns: 13% auto;
+	grid-template-columns: 15% auto;
 	grid-template-rows: 8% auto;
 }
 

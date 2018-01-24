@@ -6,6 +6,10 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+#Pipenv
+Pipfile
+Pipfile.lock
+
 # C extensions
 *.so
 

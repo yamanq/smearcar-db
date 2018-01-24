@@ -1,7 +1,7 @@
 var navSelect = "home";
 var serverURL = window.location.origin;
 var data;
-var trelloInfo = {};
+// var trelloInfo = {};
 
 
 var navi = [ // Array containing navigation items in form [Font-Awesome class name, Display Text, Onclick function].
@@ -237,7 +237,7 @@ document.onclick = function(event) {
     }
 }
 
-function getTrelloCards() {
+/*function getTrelloCards() {
     Trello.authorize();
     var cardArr, listArr, lists;
     var cards = window.Trello.rest(
@@ -262,9 +262,8 @@ function getTrelloCards() {
         function error(e) {
             console.log(e);
     });
-}
+}*/
 
 getData();
-getTrelloCards();
 createNav();
 updateNav(navSelect);
