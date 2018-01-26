@@ -203,9 +203,15 @@ a {
 	grid-gap: 2vh;	
 }
 
-#home, #dataValues {
+ #dataValues {
 	grid-template-columns: 1fr 1fr;
 	grid-template-rows: 2fr 5fr 2fr;
+}
+
+#home {
+	display: block;
+
+	opacity: 1;
 }
 
 .card {
@@ -220,7 +226,7 @@ a {
 
 	transition: all 0.3s cubic-bezier(.25,.8,.25,1);
 
-	grid-template-columns: 100%;
+	grid-template-columns: 35% auto 20%;
 	grid-template-rows: 6vh auto;
 }
 
@@ -228,8 +234,7 @@ a {
 	box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
 }
 
-.card h2 {
-	width: 35%;
+.card > h2 {
 	margin: auto 0 auto 2vh;
 
 	font-weight: 300;
@@ -239,15 +244,27 @@ a {
 	grid-row: 1;
 }
 
+.card > h3 {
+	grid-column: 3;
+	grid-row: 1;
+}
+
 .card > div {
-	grid-column: 1;
+	grid-column: 1 / 4;
 	grid-row: 2;
 }
 
-#home {
-	display: grid;
+.card > p {
+	margin: 2vh 0 2vh 4vh;
+	font-size: 120%;
+	font-weight: 300;
+	grid-column: 1 / 4;
+	grid-row: 2;
+}
 
-	opacity: 1;
+.card > h3  {
+	margin: auto;
+	font-weight: 300;
 }
 
 #langSelect {

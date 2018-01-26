@@ -1,6 +1,7 @@
 var navSelect = "home";
 var serverURL = window.location.origin;
 var data;
+
 // var trelloInfo = {};
 
 
@@ -18,7 +19,6 @@ var members = [
 var dropOp = {
     //Insert correct   
 };
-
 
 var dropOpStore = {};
 
@@ -44,12 +44,17 @@ function createNav() {
     }
 }
 
-function updateMain(op) {
+function updateMain(op) { // Updates the actual page.
     updateNav(op);
     document.getElementById(navSelect).style.opacity = "0";
     setTimeout(function() {
+        console.log(op);
         document.getElementById(navSelect).style.display = "none";
-        document.getElementById(op).style.display = "grid";
+        if(op === "home") {
+            document.getElementById(op).style.display = "block";   
+        } else {
+            document.getElementById(op).style.display = "grid";      
+        }
         setTimeout(function() {
             document.getElementById(op).style.opacity = "1";
         }, 30);
@@ -57,7 +62,7 @@ function updateMain(op) {
     }, 300);
 }
 
-function updateNav(op) {
+function updateNav(op) { // Updates the sidebar navigation.
     var oldNav = document.querySelectorAll("[option=" + navSelect + "]")[0];
     var newNav = document.querySelectorAll("[option=" + op + "]")[0];
     oldNav.style.backgroundColor = "rgba(0,0,0,0)";
@@ -103,11 +108,13 @@ function phoneme(p) {
 }
 
 function generateDropOp() { // For options that change based on data.
-    dropOp["langSelect"] = [function() {
+    dropOp["langSelect"] = [function() { // Function that occurs when change language.
         // Generate info box material.
         var langInfo = language(dropOpStore["langSelect"]);
         var info = document.getElementById("langInfoCont");
+        var dataBox = document.getElementById("dataTableCont");
         info.style.opacity = "0";
+        dataBox.style.opacity = "0";
         setTimeout(function() {
             while (info.firstChild) {
                 info.removeChild(info.firstChild);
@@ -119,7 +126,7 @@ function generateDropOp() { // For options that change based on data.
             p2.appendChild(document.createTextNode("Source: "));
             if(langInfo.source.length > 0) {
                 a.href = langInfo.source;
-                srcText = (langInfo.source.length > 60) ? langInfo.source.substring(0, langInfo.source.length - 3) + "..." : langInfo.source;
+                srcText = (langInfo.source.length > 60) ? langInfo.source.substring(0, 57) + "..." : langInfo.source;
                 a.appendChild(document.createTextNode(srcText));
                 p2.appendChild(a); 
             } else {
@@ -127,13 +134,10 @@ function generateDropOp() { // For options that change based on data.
             }
             info.appendChild(p);
             info.appendChild(p2);
-            info.style.opacity = "1";
-        }, 400);
-        // Generate data box material.
-        var dataBox = document.getElementById("dataTableCont");
-        var phonemes = Object.keys(langInfo.phonemes);
-        dataBox.style.opacity = "0";
-        setTimeout(function() {
+            // Generate data box material.
+            
+            var phonemes = Object.keys(langInfo.phonemes);
+            
             while (dataBox.firstChild) {
                 dataBox.removeChild(dataBox.firstChild);
             }
@@ -165,8 +169,9 @@ function generateDropOp() { // For options that change based on data.
                 dataBox.children[tableNum].appendChild(p1);
                 dataBox.children[tableNum].appendChild(p2);
             }
+            info.style.opacity = "1";
             dataBox.style.opacity = "1";
-        }, 400);
+        }, 300);
     }].concat(["Select language..."].concat(data.languages));
 }
 
@@ -237,6 +242,44 @@ document.onclick = function(event) {
     }
 }
 
+function homeCards() {
+    // GET posts from server
+    var week = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+    var month = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+    var examplePost = [
+        {
+            author: "Kenneth Jao",
+            title: "Test Post!",
+            content: "This is test post! <a target='_blank' href='https://google.com'>Link</a> This link should work.<br> Newlines work.",
+            date: new Date(2018, 0, 26, 4, 51)
+        }
+    ];
+    var home = document.getElementById("home");
+    for(var i = 0; i < examplePost.length; i++) {
+        var div = document.createElement("div");
+        div.className = "card";
+        var h2 = document.createElement("h2");
+        h2.textContent = examplePost[i].title;
+        div.appendChild(h2);
+        var h3 = document.createElement("h3");
+        var dt = examplePost[i].date;
+        var smallDate = (function() {
+            var m = (dt.getMonth()+1).toString();
+            var d = (dt.getDay()+1).toString();
+            m = (m.length === 1) ? "0" + m : m;
+            d = (d.length === 1) ? "0" + d : d;
+            return m+"/"+d+"/"+dt.getFullYear().toString();
+        })();
+        var fullDate = week[dt.getDay()] + ", " + month[dt.getMonth()] + " " + dt.getDate().toString() + ", " + dt.getFullYear().toString(); 
+        h3.textContent = smallDate + " | " + fullDate;
+        div.appendChild(h3);
+        var p = document.createElement("p");
+        p.innerHTML = examplePost[i].content;
+        div.appendChild(p);
+        home.appendChild(div);
+    }
+}
+
 /*function getTrelloCards() {
     Trello.authorize();
     var cardArr, listArr, lists;
@@ -265,5 +308,6 @@ document.onclick = function(event) {
 }*/
 
 getData();
+homeCards();
 createNav();
 updateNav(navSelect);
