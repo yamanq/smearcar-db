@@ -108,3 +108,5 @@ venv.bak/
 
 # Other
 *.p
+*.txt
+*.db
