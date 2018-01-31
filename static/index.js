@@ -22,6 +22,28 @@ var dropOp = {
 
 var dropOpStore = {};
 
+// Left This so that the post function can be reused
+
+// function temporary(data) {
+//     for(var i = 0; i < data.length; i++) {
+//         $.ajax({
+//             url: serverURL + '/server',
+//             type: 'POST',
+//             data: JSON.stringify(data[i]),
+//             dataType: "json",
+//             contentType: 'application/json;charset=UTF-8'
+//         })
+//             .then(
+//                 function success(data) {
+//                     console.log(data);
+//                 },
+//                 function error(e) {
+//                     console.log(e);
+//                 }
+//             );
+//     }
+// }
+
 function createNav() {
     for (var i = 0; i < navi.length; i++) { // Create navigation tabs.
         var side = document.getElementById("sidebar");

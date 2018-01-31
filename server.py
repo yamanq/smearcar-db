@@ -151,7 +151,6 @@ def backend():
         for phoneme, value in recieved['phonemes'].items():
             with db.session.no_autoflush:
                 search = Phoneme.query.filter_by(name=phoneme).first()
-            print(search)
             if not search:
                 search = Phoneme(name=phoneme)
                 db.session.add(search)
@@ -173,17 +172,20 @@ def backend():
 # Manipulate Updates
 @app.route("/updates", methods=["GET", "POST", "PATCH"])
 def updates():
+
     if request.method == "POST":
         recieved = request.get_json()
         update = Update(author=recieved['author'],
                         title=recieved['title'],
                         content=recieved['content'])
         db.session.add(update)
+
     elif request.method == "PATCH":
         update = Update.query.filter_by(id=recieved['id']).first()
         update.name = recieved['author']
         update.title = recieved['title']
         update.content = recieved['content']
+
     db.session.commit()
     return jsonify([{"author": update.name,
                      "id": update.id,
@@ -192,5 +194,6 @@ def updates():
                      "date": update.date}
                     for update in Update.query.all()])
 
-# if __name__ == "__main__":
-#     app.run(host="0.0.0.0")
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0")
