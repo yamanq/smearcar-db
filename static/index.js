@@ -205,7 +205,7 @@ function generateDropOp() { // For options that change based on data.
                         yAxes: [{
                             scaleLabel: {
                                 display: true,
-                                labelString: "Phoneme",
+                                labelString: "Phoneme (%)",
                                 fontFamily: "'Open Sans Condensed', sans-serif",
                                 fontSize: 20,
                                 padding: 4
@@ -213,6 +213,9 @@ function generateDropOp() { // For options that change based on data.
                             ticks: {
                                 fontFamily: "'Open Sans Condensed', sans-serif",
                                 fontSize: 20,
+                                callback: function(value) {
+                                    return value + "%";
+                                }
                             }
                         }],
                         xAxes: [{
