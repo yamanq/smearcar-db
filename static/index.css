@@ -203,11 +203,6 @@ a {
 	grid-gap: 2vh;	
 }
 
- #dataValues {
-	grid-template-columns: 1fr 1fr;
-	grid-template-rows: 2fr 5fr 2fr;
-}
-
 #home {
 	display: block;
 
@@ -267,6 +262,25 @@ a {
 	font-weight: 300;
 }
 
+.row {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	grid-template-rows: 100%;
+	grid-gap: 2vh;
+}
+
+#dataValues > div {
+	margin-bottom: 2vh;
+}
+
+#dataValues .row {
+	height: 20%;
+}
+
+#dataValues #dataTable {
+	height: 42%;
+}
+
 #langSelect {
 	grid-column: 1;
 	grid-row: 1;
@@ -288,11 +302,6 @@ a {
 	font-weight: 300;
 	font-size: 150%;
 	margin: auto 0 auto 4vh;
-}
-
-#dataTable {
-	grid-column: 1 / 3;
-	grid-row: 2;
 }
 
 #dataTableCont {

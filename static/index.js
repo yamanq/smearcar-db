@@ -50,11 +50,7 @@ function updateMain(op) { // Updates the actual page.
     setTimeout(function() {
         console.log(op);
         document.getElementById(navSelect).style.display = "none";
-        if(op === "home") {
-            document.getElementById(op).style.display = "block";   
-        } else {
-            document.getElementById(op).style.display = "grid";      
-        }
+        document.getElementById(op).style.display = "block";   
         setTimeout(function() {
             document.getElementById(op).style.opacity = "1";
         }, 30);
@@ -134,6 +130,7 @@ function generateDropOp() { // For options that change based on data.
             }
             info.appendChild(p);
             info.appendChild(p2);
+            
             // Generate data box material.
             
             var phonemes = Object.keys(langInfo.phonemes);
@@ -171,6 +168,34 @@ function generateDropOp() { // For options that change based on data.
             }
             info.style.opacity = "1";
             dataBox.style.opacity = "1";
+            var graphData = Object.entries(langInfo.phonemes).sort(function(a,b) {
+               return b[1] - a[1];
+            });
+            graphData = [graphData.map(function(a,b) {
+                return a[0];
+            }), graphData.map(function(a,b) {
+                return a[1];
+            })];
+            // Generate graphs.
+            var ctx = document.getElementById("dataGraph1").getContext("2d");
+            var chart = new Chart(ctx, {
+                // The type of chart we want to create
+                type: 'bar',
+
+                // The data for our dataset
+                data: {
+                    labels: graphData[0],
+                    datasets: [{
+                        label: "Phoneme Prevalence",
+                        backgroundColor: 'rgb(255, 99, 132)',
+                        borderColor: 'rgb(255, 99, 132)',
+                        data: graphData[1],
+                    }]
+                },
+
+                // Configuration options go here
+                options: {}
+            });
         }, 300);
     }].concat(["Select language..."].concat(data.languages));
 }
