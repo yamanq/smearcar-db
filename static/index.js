@@ -1,6 +1,7 @@
 var navSelect = "home";
 var serverURL = window.location.origin;
 var data;
+var languageChart;
 
 // var trelloInfo = {};
 
@@ -109,8 +110,10 @@ function generateDropOp() { // For options that change based on data.
         var langInfo = language(dropOpStore["langSelect"]);
         var info = document.getElementById("langInfoCont");
         var dataBox = document.getElementById("dataTableCont");
+        var graph = document.querySelectorAll("#langGraph > canvas")[0];
         info.style.opacity = "0";
         dataBox.style.opacity = "0";
+        graph.style.opacity = "0";
         setTimeout(function() {
             while (info.firstChild) {
                 info.removeChild(info.firstChild);
@@ -166,8 +169,6 @@ function generateDropOp() { // For options that change based on data.
                 dataBox.children[tableNum].appendChild(p1);
                 dataBox.children[tableNum].appendChild(p2);
             }
-            info.style.opacity = "1";
-            dataBox.style.opacity = "1";
             var graphData = Object.entries(langInfo.phonemes).sort(function(a,b) {
                return b[1] - a[1];
             });
@@ -177,25 +178,63 @@ function generateDropOp() { // For options that change based on data.
                 return a[1];
             })];
             // Generate graphs.
-            var ctx = document.getElementById("dataGraph1").getContext("2d");
-            var chart = new Chart(ctx, {
-                // The type of chart we want to create
+            var ctx = graph.getContext("2d");
+            try { 
+                languageChart.destroy();
+            } catch(err) {}
+            languageChart = new Chart(ctx, {
                 type: 'bar',
-
-                // The data for our dataset
                 data: {
                     labels: graphData[0],
                     datasets: [{
                         label: "Phoneme Prevalence",
-                        backgroundColor: 'rgb(255, 99, 132)',
-                        borderColor: 'rgb(255, 99, 132)',
                         data: graphData[1],
+                        backgroundColor: 'rgba(244, 121, 34, 0.7)',
+                        borderColor: 'rgba(246, 112, 18, 1)',
+                        borderWidth: 2
                     }]
                 },
+                options: {
+                    legend: {
+                        labels: {
+                            fontFamily: "'Open Sans Condensed', sans-serif",
+                            fontSize: 20
+                        }
+                    },
+                    scales: {
+                        yAxes: [{
+                            scaleLabel: {
+                                display: true,
+                                labelString: "Phoneme",
+                                fontFamily: "'Open Sans Condensed', sans-serif",
+                                fontSize: 20,
+                                padding: 4
+                            },
+                            ticks: {
+                                fontFamily: "'Open Sans Condensed', sans-serif",
+                                fontSize: 20,
+                            }
+                        }],
+                        xAxes: [{
+                            scaleLabel: {
+                                display: true,
+                                labelString: "Percent Prevalence",
+                                fontFamily: "'Open Sans Condensed', sans-serif",
+                                fontSize: 20,
+                                padding: 4
+                            },
+                            ticks: {
+                                fontFamily: "'Open Sans Condensed', sans-serif",
+                                fontSize: 20
+                            }
+                        }],
 
-                // Configuration options go here
-                options: {}
+                    }
+                }
             });
+            info.style.opacity = "1";
+            dataBox.style.opacity = "1";
+            graph.style.opacity = "1";
         }, 300);
     }].concat(["Select language..."].concat(data.languages));
 }
