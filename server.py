@@ -40,6 +40,24 @@ class Update(db.Model):
                      default=int(time.time()*1000))
 
 
+def generate_key():
+    pass
+
+
+class Editor(db.Model):
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    description = db.Column(db.String(75), nullable=False)
+    authority = db.Column(db.Integer, nullable=False, default=1)
+    # 0: Full Access
+    # 1: Edit values and Add files
+    # 2: Edit values
+    # 3: No Access
+
+    token = db.Column(db.String(32), nullable=False, default=generate_key)
+    date = db.Column(db.BigInteger, nullable=False,
+                     default=int(time.time()*1000))
+
+
 def database():
     final = {'values': []}
     final['languages'] = [f.name for f in Language.query.all()]
@@ -103,7 +121,8 @@ def language_name_edit(info):
     #     language_id: language_id,
     #     language_name: name
     # }
-    Language.query.filter_by(id=info['language_id']).first().name = info['language_name']
+    language = Language.query.filter_by(id=info['language_id']).first()
+    language.name = info['language_name']
 
 
 def language_source_add(info):
@@ -112,7 +131,8 @@ def language_source_add(info):
     #     language_id: language_id,
     #     language_source = source
     # }
-    Language.query.filter_by(id=info['language_id']).first().source = info['language_source']
+    language = Language.query.filter_by(id=info['language_id']).first()
+    language.source = info['language_source']
 
 
 patch_functions = {
