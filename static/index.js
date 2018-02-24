@@ -2,6 +2,7 @@ var navSelect = "home";
 var serverURL = window.location.origin;
 var data;
 var languageChart;
+var dataOpen = false;
 
 // var trelloInfo = {};
 
@@ -165,7 +166,16 @@ function generateDropOp() { // For options that change based on data.
                     dataBox.children[tableNum].appendChild(pT2);
                 } 
                 p1.appendChild(document.createTextNode(phonemes[i]));
-                p2.appendChild(document.createTextNode(langInfo.phonemes[phonemes[i]])); 
+                p2.appendChild(document.createTextNode(langInfo.phonemes[phonemes[i]]));
+                p2.onclick = function() {
+                    if(dataOpen) closeEditInput();
+                    dataOpen = true;
+                    var input = document.createElement("input");
+                    var value = this.childNodes[0].nodeValue;
+                    this.removeChild(this.childNodes[0]);
+                    this.appendChild(input);
+                    input.value = value;
+                } 
                 dataBox.children[tableNum].appendChild(p1);
                 dataBox.children[tableNum].appendChild(p2);
             }
@@ -241,6 +251,41 @@ function generateDropOp() { // For options that change based on data.
         }, 300);
     }].concat(["Select language..."].concat(data.languages));
 }
+
+function closeEditInput() {
+    var input = document.querySelectorAll("#dataTableCont input")[0];
+    var p = input.parentNode;
+    /*$.ajax({
+            url: serverURL + '/server',
+            type: 'PATCH',
+            data: {
+                action: 'phoneme'
+            }
+        })
+        .then(
+            function success(incoming) {
+                data = incoming;
+                generateDropOp();
+                createDrop();
+            },
+            function error(e) {
+                console.log(e);
+            }
+        );*/
+        p.appendChild(document.createTextNode(input.value));
+        p.removeChild(input);
+    dataOpen = false;
+
+}
+
+document.addEventListener("click", function(event) {
+    console.log(event.target);
+    var input = document.querySelectorAll("#dataTableCont input")[0];
+
+    if(dataOpen && !(event.target === input || event.target === input.parentNode)) {
+        closeEditInput();
+    }
+});
 
 function createDrop() {
     var dropButtons = document.getElementsByClassName("dropdown");

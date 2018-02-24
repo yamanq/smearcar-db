@@ -324,6 +324,15 @@ a {
 	padding: 0 5% 0 5%;
 }
 
+#dataTableCont input {
+	font-size: 100%;
+	width: 60%;
+	padding: 0;
+	font-family: 'Saira Condensed', sans-serif;
+	font-weight: 300;
+
+}
+
 #langGraph {
 	display: block;
 }
