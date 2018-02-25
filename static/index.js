@@ -146,13 +146,13 @@ function generateDropOp() { // For options that change based on data.
             var a = document.createElement("a");
             p.appendChild(document.createTextNode("Type: " + (langInfo.type || "N/A")));
             p2.appendChild(document.createTextNode("Source: "));
-            if(langInfo.source.length > 0) {
+            if(langInfo.source === null) {
+                p2.appendChild(document.createTextNode("N/A"));
+            } else if(langInfo.source.length > 0) {
                 a.href = langInfo.source;
                 srcText = (langInfo.source.length > 60) ? langInfo.source.substring(0, 57) + "..." : langInfo.source;
                 a.appendChild(document.createTextNode(srcText));
                 p2.appendChild(a); 
-            } else {
-                p2.appendChild(document.createTextNode("N/A"));
             }
             info.appendChild(p);
             info.appendChild(p2);
@@ -189,20 +189,24 @@ function generateDropOp() { // For options that change based on data.
                 } 
                 p1.appendChild(document.createTextNode(phonemes[i]));
                 p2.appendChild(document.createTextNode(langInfo.phonemes[phonemes[i]]));
-                p2.onclick = function() {
-                    if(dataOpen) closeEditInput();
+                p2.className = "dataEdit";
+                p2.onclick = function(event) {
+                    if(this === event.target) return;
+                    closeEditInput();
                     dataOpen = true;
                     var input = document.createElement("input");
                     var value = this.childNodes[0].nodeValue;
                     this.removeChild(this.childNodes[0]);
                     this.appendChild(input);
                     input.value = value;
+                    input.id = "dataOpen";
+                    input.focus();
                 } 
                 dataBox.children[tableNum].appendChild(p1);
                 dataBox.children[tableNum].appendChild(p2);
             }
             var graphData = Object.entries(langInfo.phonemes).sort(function(a,b) {
-               return b[1] - a[1];
+                return b[1] - a[1];
             });
             graphData = [graphData.map(function(a,b) {
                 return a[0];
@@ -275,36 +279,39 @@ function generateDropOp() { // For options that change based on data.
 }
 
 function closeEditInput() {
-    var input = document.querySelectorAll("#dataTableCont input")[0];
-    var p = input.parentNode;
-    /*$.ajax({
+    try {
+        var input = document.getElementById("dataOpen");
+        var p = input.parentNode;
+        var patchData = {
+            action: 'phoneme_add',
+            data: {
+                language_id: language(dropOpStore["langSelect"]).id,
+                phoneme: p.previousSibling.innerText,
+                value: input.value
+            }
+        };
+        $.ajax({
             url: serverURL + '/server',
             type: 'PATCH',
-            data: {
-                action: 'phoneme'
-            }
+            dataType: "json",
+            contentType: 'application/json;charset=UTF-8',
+            data: JSON.stringify(patchData)
         })
         .then(
             function success(incoming) {
-                data = incoming;
-                generateDropOp();
-                createDrop();
+                p.appendChild(document.createTextNode(input.value));
+                p.removeChild(input);
             },
             function error(e) {
                 console.log(e);
             }
-        );*/
-        p.appendChild(document.createTextNode(input.value));
-        p.removeChild(input);
-    dataOpen = false;
-
+        );
+        dataOpen = false;
+    } catch(err) {}
 }
 
 document.addEventListener("click", function(event) {
-    console.log(event.target);
-    var input = document.querySelectorAll("#dataTableCont input")[0];
-
-    if(dataOpen && !(event.target === input || event.target === input.parentNode)) {
+    if(event.target.className !== "dataEdit") {
         closeEditInput();
     }
 });

@@ -325,6 +325,7 @@ a {
 }
 
 #dataTableCont input {
+	border: 1px solid rgba(0,0,0,0.3);
 	font-size: 100%;
 	width: 60%;
 	padding: 0;

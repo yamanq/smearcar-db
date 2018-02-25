@@ -63,15 +63,14 @@ def database():
     final['languages'] = [f.name for f in Language.query.all()]
     final['phonemes'] = [f.name for f in Phoneme.query.all()]
     for language in Language.query.all():
-        languageobject = {'name': language.name,
+        languageobject = {'id': language.id,
+                          'name': language.name,
                           'source': language.source,
                           'phonemes': {}}
-        languageobject['name'] = language.name
         for frequency in language.phonemes:
             languageobject['phonemes'][frequency.phoneme.name] = frequency.value
         final['values'].append(languageobject)
     return final
-
 
 def phoneme_add(info):
     """Add or edit value associated with phoneme."""
@@ -164,11 +163,11 @@ def backend():
 
     # POST method appends input to database['values']
     if request.method == "POST":
-        recieved = request.get_json()
-        language = Language(name=recieved['name'], source=recieved['source'])
+        received = request.get_json()
+        language = Language(name=received['name'], source=received['source'])
         db.session.add(language)
 
-        for phoneme, value in recieved['phonemes'].items():
+        for phoneme, value in received['phonemes'].items():
             with db.session.no_autoflush:
                 search = Phoneme.query.filter_by(name=phoneme).first()
             if not search:
@@ -182,8 +181,8 @@ def backend():
 
     # PATCH method inputs edited language and returns updated database
     elif request.method == "PATCH":
-        recieved = request.get_json()
-        patch_functions[recieved['action']](recieved['data'])
+        received = request.get_json()
+        patch_functions[received['action']](received['data'])
         db.session.commit()
 
     return jsonify(database())
@@ -194,17 +193,18 @@ def backend():
 def updates():
 
     if request.method == "POST":
-        recieved = request.get_json()
-        update = Update(author=recieved['author'],
-                        title=recieved['title'],
-                        content=recieved['content'])
+        received = request.get_json()
+        update = Update(author=received['author'],
+                        title=received['title'],
+                        content=received['content'])
         db.session.add(update)
 
     elif request.method == "PATCH":
-        update = Update.query.filter_by(id=recieved['id']).first()
-        update.name = recieved['author']
-        update.title = recieved['title']
-        update.content = recieved['content']
+        received = request.get_json()
+        update = Update.query.filter_by(id=received['id']).first()
+        update.name = received['author']
+        update.title = received['title']
+        update.content = received['content']
 
     db.session.commit()
     return jsonify([{"author": update.name,
