@@ -226,7 +226,7 @@ a {
 
 	transition: all 0.3s cubic-bezier(.25,.8,.25,1);
 
-	grid-template-columns: 35% auto 20%;
+	grid-template-columns: 35% auto 50%;
 	grid-template-rows: 6vh auto;
 }
 
@@ -247,6 +247,9 @@ a {
 .card > h3 {
 	grid-column: 3;
 	grid-row: 1;
+	margin: auto 2vh auto 0;
+	text-align: right;
+	font-weight: 300;
 }
 
 .card > div {
@@ -260,12 +263,7 @@ a {
 	font-weight: 300;
 	grid-column: 1 / 4;
 	grid-row: 2;
-}
-
-.card > h3  {
-	margin: auto;
-	font-weight: 300;
-}
+}	
 
 #langSelect {
 	grid-column: 1;
