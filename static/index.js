@@ -1,6 +1,8 @@
 var navSelect = "home";
 var serverURL = window.location.origin;
 var data;
+var languageChart;
+var dataOpen = false;
 
 // var trelloInfo = {};
 
@@ -21,6 +23,28 @@ var dropOp = {
 };
 
 var dropOpStore = {};
+
+// Left This so that the post function can be reused
+
+// function temporary(data) {
+//     for(var i = 0; i < data.length; i++) {
+//         $.ajax({
+//             url: serverURL + '/server',
+//             type: 'POST',
+//             data: JSON.stringify(data[i]),
+//             dataType: "json",
+//             contentType: 'application/json;charset=UTF-8'
+//         })
+//             .then(
+//                 function success(data) {
+//                     console.log(data);
+//                 },
+//                 function error(e) {
+//                     console.log(e);
+//                 }
+//             );
+//     }
+// }
 
 function createNav() {
     for (var i = 0; i < navi.length; i++) { // Create navigation tabs.
@@ -50,11 +74,7 @@ function updateMain(op) { // Updates the actual page.
     setTimeout(function() {
         console.log(op);
         document.getElementById(navSelect).style.display = "none";
-        if(op === "home") {
-            document.getElementById(op).style.display = "block";   
-        } else {
-            document.getElementById(op).style.display = "grid";      
-        }
+        document.getElementById(op).style.display = "block";   
         setTimeout(function() {
             document.getElementById(op).style.opacity = "1";
         }, 30);
@@ -113,8 +133,10 @@ function generateDropOp() { // For options that change based on data.
         var langInfo = language(dropOpStore["langSelect"]);
         var info = document.getElementById("langInfoCont");
         var dataBox = document.getElementById("dataTableCont");
+        var graph = document.querySelectorAll("#langGraph > canvas")[0];
         info.style.opacity = "0";
         dataBox.style.opacity = "0";
+        graph.style.opacity = "0";
         setTimeout(function() {
             while (info.firstChild) {
                 info.removeChild(info.firstChild);
@@ -124,16 +146,17 @@ function generateDropOp() { // For options that change based on data.
             var a = document.createElement("a");
             p.appendChild(document.createTextNode("Type: " + (langInfo.type || "N/A")));
             p2.appendChild(document.createTextNode("Source: "));
-            if(langInfo.source.length > 0) {
+            if(langInfo.source === null) {
+                p2.appendChild(document.createTextNode("N/A"));
+            } else if(langInfo.source.length > 0) {
                 a.href = langInfo.source;
                 srcText = (langInfo.source.length > 60) ? langInfo.source.substring(0, 57) + "..." : langInfo.source;
                 a.appendChild(document.createTextNode(srcText));
                 p2.appendChild(a); 
-            } else {
-                p2.appendChild(document.createTextNode("N/A"));
             }
             info.appendChild(p);
             info.appendChild(p2);
+            
             // Generate data box material.
             
             var phonemes = Object.keys(langInfo.phonemes);
@@ -165,15 +188,133 @@ function generateDropOp() { // For options that change based on data.
                     dataBox.children[tableNum].appendChild(pT2);
                 } 
                 p1.appendChild(document.createTextNode(phonemes[i]));
-                p2.appendChild(document.createTextNode(langInfo.phonemes[phonemes[i]])); 
+                p2.appendChild(document.createTextNode(langInfo.phonemes[phonemes[i]]));
+                p2.className = "dataEdit";
+                p2.onclick = function(event) {
+                    if(this === event.target) return;
+                    closeEditInput();
+                    dataOpen = true;
+                    var input = document.createElement("input");
+                    var value = this.childNodes[0].nodeValue;
+                    this.removeChild(this.childNodes[0]);
+                    this.appendChild(input);
+                    input.value = value;
+                    input.id = "dataOpen";
+                    input.focus();
+                } 
                 dataBox.children[tableNum].appendChild(p1);
                 dataBox.children[tableNum].appendChild(p2);
             }
+            var graphData = Object.entries(langInfo.phonemes).sort(function(a,b) {
+                return b[1] - a[1];
+            });
+            graphData = [graphData.map(function(a,b) {
+                return a[0];
+            }), graphData.map(function(a,b) {
+                return a[1];
+            })];
+            // Generate graphs.
+            var ctx = graph.getContext("2d");
+            try { 
+                languageChart.destroy();
+            } catch(err) {}
+            languageChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: graphData[0],
+                    datasets: [{
+                        label: "Phoneme Prevalence",
+                        data: graphData[1],
+                        backgroundColor: 'rgba(244, 121, 34, 0.7)',
+                        borderColor: 'rgba(246, 112, 18, 1)',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    legend: {
+                        labels: {
+                            fontFamily: "'Open Sans Condensed', sans-serif",
+                            fontSize: 20
+                        }
+                    },
+                    scales: {
+                        yAxes: [{
+                            scaleLabel: {
+                                display: true,
+                                labelString: "Phoneme (%)",
+                                fontFamily: "'Open Sans Condensed', sans-serif",
+                                fontSize: 20,
+                                padding: 4
+                            },
+                            ticks: {
+                                fontFamily: "'Open Sans Condensed', sans-serif",
+                                fontSize: 20,
+                                callback: function(value) {
+                                    return value + "%";
+                                }
+                            }
+                        }],
+                        xAxes: [{
+                            scaleLabel: {
+                                display: true,
+                                labelString: "Percent Prevalence",
+                                fontFamily: "'Open Sans Condensed', sans-serif",
+                                fontSize: 20,
+                                padding: 4
+                            },
+                            ticks: {
+                                fontFamily: "'Open Sans Condensed', sans-serif",
+                                fontSize: 20
+                            }
+                        }],
+
+                    }
+                }
+            });
             info.style.opacity = "1";
             dataBox.style.opacity = "1";
+            graph.style.opacity = "1";
         }, 300);
     }].concat(["Select language..."].concat(data.languages));
 }
+
+function closeEditInput() {
+    try {
+        var input = document.getElementById("dataOpen");
+        var p = input.parentNode;
+        var patchData = {
+            action: 'phoneme_add',
+            data: {
+                language_id: language(dropOpStore["langSelect"]).id,
+                phoneme: p.previousSibling.innerText,
+                value: input.value
+            }
+        };
+        $.ajax({
+            url: serverURL + '/server',
+            type: 'PATCH',
+            dataType: "json",
+            contentType: 'application/json;charset=UTF-8',
+            data: JSON.stringify(patchData)
+        })
+        .then(
+            function success(incoming) {
+                p.appendChild(document.createTextNode(input.value));
+                p.removeChild(input);
+            },
+            function error(e) {
+                console.log(e);
+            }
+        );
+        dataOpen = false;
+    } catch(err) {}
+}
+
+document.addEventListener("click", function(event) {
+    if(event.target.className !== "dataEdit") {
+        closeEditInput();
+    }
+});
 
 function createDrop() {
     var dropButtons = document.getElementsByClassName("dropdown");
