@@ -597,6 +597,8 @@ document.querySelectorAll("#newLanguageSubmit p")[0].onclick = function() {
                 submittable = true;
                 p.innerText = "Submit!";
                 p.style.backgroundColor = "#FEFEFE";
+                document.querySelectorAll("#newLanguageName input")[0].value = "";
+                document.querySelectorAll("#newLanguagePhonemes textarea")[0].value = "";
             }, 300);
             getData();
         },
