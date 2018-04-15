@@ -1,4 +1,3 @@
-/* Layout Elements and General Formatting */
 html {
 	height: 100%;
 	width: 100%;
@@ -6,20 +5,17 @@ html {
 
 body {
 	display: grid;
-
 	height: 100%;
 	overflow: hidden;
 	padding: 0;
 	margin: 0;
-
 	color: white;
 	font-family: 'Open Sans Condensed', sans-serif;
-
 	grid-template-columns: 15% auto;
 	grid-template-rows: 8% auto;
 }
 
-h1,h2,h3,h4,h5,p {
+h1, h2, h3, h4, h5, p {
 	margin: 0;
 }
 
@@ -29,20 +25,16 @@ a {
 }
 
 .transition {
-	-webkit-transition: all 0.3s cubic-bezier(.25,.8,.25,1);
-	transition: all 0.3s cubic-bezier(.25,.8,.25,1);
-
-	-moz-transition: all 0.3s cubic-bezier(.25,.8,.25,1);
-	-ms-transition: all 0.3s cubic-bezier(.25,.8,.25,1);
+	-webkit-transition: all 0.3s cubic-bezier(.25, .8, .25, 1);
+	transition: all 0.3s cubic-bezier(.25, .8, .25, 1);
+	-moz-transition: all 0.3s cubic-bezier(.25, .8, .25, 1);
+	-ms-transition: all 0.3s cubic-bezier(.25, .8, .25, 1);
 }
 
 #header1 {
 	display: grid;
-
 	background-color: #F47922;
-
 	text-align: center;
-
 	grid-column: 1;
 	grid-row: 1;
 	cursor: pointer;
@@ -50,7 +42,7 @@ a {
 
 #header1 h1 {
 	margin: auto 0 auto 0;
-
+	font-size: 4vh;
 	font-weight: 300;
 }
 
@@ -60,88 +52,69 @@ a {
 
 #header2 {
 	background-color: #524948;
-
 	grid-column: 2;
 	grid-row: 1;
 }
 
 #sidebar {
 	background-color: #524948;
-
 	grid-column: 1;
 	grid-row: 2;
 }
 
 .navi {
 	display: grid;
-
 	height: 6vh;
 	width: 100%;
-
 	cursor: pointer;
 	grid-template-columns: 1fr 3fr 7fr;
 }
 
 .navi:hover {
-	background-color: rgba(255,255,255,0.1) !important;
+	background-color: rgba(255, 255, 255, 0.1) !important
 }
 
 .navi i {
 	margin: auto 0 auto 0;
-
-	font-size: 130%;
+	font-size: 2.1vh;
 	text-align: center;
-
 	grid-column: 2;
 }
 
 .navi p {
 	margin: auto 0 auto 0;
-
-	font-size: 110%;
-
+	font-size: 2vh;
 	grid-column: 3;
 }
 
 #mainContainer {
 	overflow-y: auto;
 	padding: 2vh;
-
 	background-color: #F8F3F0;
-
 	font-family: 'Saira Condensed', sans-serif;
-
 	grid-column: 2;
 	grid-row: 2;
 }
 
-/* Dropdown */
-
 .dropdown {
 	position: relative;
 	display: grid;
-
 	border-left: 5px solid #F88A3C;
-
-	background-color: rgba(0,0,0,0.05);
-
+	background-color: rgba(0, 0, 0, 0.05);
 	grid-template-columns: 100%;
 	grid-template-rows: auto 0%;
 	cursor: pointer;
 }
 
 .dropdown:hover {
-	background-color: rgba(0,0,0,0.1);
+	background-color: rgba(0, 0, 0, 0.1)
 }
 
 .dropdown .button {
 	display: grid;
-
 	padding-left: 2%;
 	margin: auto 0 auto 0;
-
-	font-size: 170%;
-
+	font-size: 2.7vh;
 	grid-column: 1;
 	grid-row: 1;
 	grid-template-columns: 14fr 1fr;
@@ -156,7 +129,6 @@ a {
 
 .dropdown .button i {
 	margin: auto 0 auto 0;
-
 	grid-column: 2;
 	grid-row: 1;
 }
@@ -165,83 +137,70 @@ a {
 	position: absolute;
 	opacity: 0;
 	display: none;
-
 	width: 100%;
 	border-radius: 2px;
-
 	background-color: #FEFEFE;
-	box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
-
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
 	grid-column: 1;
 	grid-row: 2;
-
 	overflow-y: auto;
 	max-height: 30vh;
 }
 
 .dropdown .opCont p {
 	padding: 2% 0 2% 4%;
-
-	font-size: 130%;
+	font-size: 2.3vh;
 }
 
 .dropdown .opCont p:hover {
-	background-color: rgba(0,0,0,0.1);
+	background-color: rgba(0, 0, 0, 0.1);
 }
 
-/* Main Body */
-
-#home, #dataValues, #files, #about {
+#home, #dataValues1, #dataValues2, #files, #about {
 	display: none;
-
 	height: 100%;
 	width: 100%;
 	opacity: 0;
-
-	transition: opacity 0.3s cubic-bezier(.25,.8,.25,1);
-
-	grid-gap: 2vh;	
+	transition: opacity 0.3s cubic-bezier(.25, .8, .25, 1);
+	grid-gap: 2vh;
 }
 
 #home {
 	display: block;
-
 	opacity: 1;
 }
 
 .card {
 	display: grid;
-
 	border-radius: 2px;
-
 	background-color: #FEFEFE;
-	box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
-
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
 	color: black;
-
-	transition: all 0.3s cubic-bezier(.25,.8,.25,1);
-
-	grid-template-columns: 35% auto 20%;
+	transition: all 0.3s cubic-bezier(.25, .8, .25, 1);
+	grid-template-columns: 35% auto 25% 15%;
 	grid-template-rows: 6vh auto;
 }
 
 .card:hover {
-	box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
+	box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
 }
 
 .card > h2 {
 	margin: auto 0 auto 2vh;
-
+	font-size: 2.8vh;
 	font-weight: 300;
 	border-bottom: 1px solid #D5D5D5;
-
 	grid-column: 1;
 	grid-row: 1;
 }
 
 .card > h3 {
-	grid-column: 3;
+	margin: auto 10% auto 0;
+	font-weight: 300;
+	font-size: 1.8vh;
+	grid-column: 3 / 5;
 	grid-row: 1;
+	text-align: right;
 }
 
 .card > div {
@@ -251,15 +210,10 @@ a {
 
 .card > p {
 	margin: 2vh 0 2vh 4vh;
-	font-size: 120%;
+	font-size: 2.2vh;
 	font-weight: 300;
 	grid-column: 1 / 4;
 	grid-row: 2;
-}
-
-.card > h3  {
-	margin: auto;
-	font-weight: 300;
 }
 
 .row {
@@ -269,27 +223,66 @@ a {
 	grid-gap: 2vh;
 }
 
-#dataValues > div {
+#dataValues1 > div, #dataValues2 > div {
 	margin-bottom: 2vh;
 }
 
-#dataValues .row {
+#dataValues1 .row, #dataValues2 .row {
 	height: 20%;
 }
 
-#dataValues #dataTable {
+#dataValues1 #dataTable, #dataValues2 .row {
 	height: 42%;
 }
 
+#dataTable {
+	grid-template-columns: 90fr 10fr;
+}
+
+
 #langSelect {
 	grid-column: 1;
-	grid-row: 1;
+	grid-row: 1
 }
 
 #langSelect .dropdown {
 	height: 50%;
 	width: 85%;
 	margin: auto 0 auto 5%;
+}
+
+#flipMode {
+	grid-column: 4;
+	grid-row: 1;
+	cursor: pointer;
+	text-align: right;
+	display: grid;
+	grid-template-columns: auto 40%;
+	grid-template-rows: 1fr;
+	background-color: rgba(0, 0, 0, 0);
+}
+
+#flipMode:hover {
+	background-color: rgba(0, 0, 0, 0.05);
+}
+
+#flipMode p {
+	font-size: 2vh;
+	margin: auto 0 auto auto;
+	vertical-align: middle;
+	display: inline-block;
+	grid-column: 1;
+	grid-row: 1;
+	d
+	pointer-events: none;
+}
+
+#flipMode .fa {
+	margin: auto;
+	font-size: 3vh;
+	grid-column: 2;
+	grid-row: 1;
+	pointer-events: none;
 }
 
 #dataInfo {
@@ -300,7 +293,7 @@ a {
 #langInfoCont {
 	display: grid;
 	font-weight: 300;
-	font-size: 150%;
+	font-size: 2.5vh;
 	margin: auto 0 auto 4vh;
 }
 
@@ -320,18 +313,17 @@ a {
 }
 
 #dataTableCont div p {
-	font-size: 130%;
+	font-size: 2.2vh;
 	padding: 0 5% 0 5%;
 }
 
 #dataTableCont input {
-	border: 1px solid rgba(0,0,0,0.3);
-	font-size: 100%;
+	border: 1px solid rgba(0, 0, 0, 0.3);
+	font-size: 2vh;
 	width: 60%;
 	padding: 0;
 	font-family: 'Saira Condensed', sans-serif;
 	font-weight: 300;
-
 }
 
 #langGraph {
@@ -341,4 +333,91 @@ a {
 #langGraph canvas {
 	grid-column: 1;
 	grid-row: 1;
+}
+
+#addData {
+	display: grid;
+	grid-template-columns: 70% 30%;
+	grid-template-rows: 100%;
+	grid-column: 2;
+	grid-row: 1;
+	cursor: pointer;
+
+	font-size: 2vh;
+}
+
+#addData p, #addData i {
+	display: inline-block;
+	margin: auto;
+	grid-row: 1;
+}
+
+#addData:hover {
+	background-color: rgba(0, 0, 0, 0.05);
+}
+
+#newLanguage {
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	display: none;
+	opacity: 0;
+	background-color: rgba(0,0,0,0.4);
+}
+
+#newLanguage > div {
+	position: absolute;
+	width: 20%;
+	height: 60%;
+	margin: 5% 40% 0 40%;
+	background-color: #F8F3F0;
+	grid-template-columns: 1fr;
+	grid-template-rows: 6vh 5% 70% auto;
+}
+
+#newLanguageName {
+	grid-row: 2;
+}
+
+#newLanguageName p {
+	display: inline;
+	margin-left: 5%;
+	grid-row: 1;
+}
+
+#newLanguageName input {
+	margin: auto 0 auto 0;
+	width: 50%;
+	grid-row: 1;
+}
+
+#newLanguagePhonemes {
+	grid-row: 3;
+}
+
+#newLanguagePhonemes p {
+	margin-left: 5%;
+}
+
+#newLanguagePhonemes textarea {
+	width: 90%;
+	margin-left: 5%;
+	height: 90%;
+	resize: none;
+	font-family: 'Saira Condensed', sans-serif;
+	font-size: 1.5vh;
+}
+
+#newLanguageSubmit {
+	display: grid;
+	grid-row: 4;
+}
+
+#newLanguageSubmit p {
+	display: block;
+	font-size: 3vh;
+	margin: auto 10% auto;
+	padding: 1%;
+	text-align: center;
+	cursor: pointer;
 }

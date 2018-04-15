@@ -26,10 +26,44 @@
     <div id="mainContainer">
         <div id="home" class="optionContainer">
         </div>
-        <div id="dataValues" class="optionContainer">
+        <div id="dataValues1" class="optionContainer">
             <div class="row">
                 <div id="langSelect" class="card">
                     <h2>Language</h2>
+                    <div id="flipMode" class="transition">
+                        <p>Phoneme</p>
+                        <i class="fa fa-angle-double-right"></i>
+                    </div>
+                    <div option="langSelect" class="dropdown transition">
+                    </div>
+                </div>
+                <div id="dataInfo" class="card">
+                    <h2>Info</h2>
+                    <div id="langInfoCont" class="transition">
+                    </div>
+                </div>
+            </div>
+            <div id="dataTable" class="card">
+                <h2>Data</h2>
+                <div id="addData" class="transition">
+                    <p>Add Language</p>
+                    <i class="fa fa-plus"></i>
+                </div>
+                <div id="dataTableCont" class="transition">
+                </div>
+            </div>
+            <div id="langGraph" class="card">
+                <canvas class="transition"></canvas>
+            </div>
+        </div>
+        <div id="dataValues2" class="optionContainer">
+            <div class="row">
+                <div id="langSelect" class="card">
+                    <h2>Language</h2>
+                    <div id="flipMode" class="transition">
+                        <p>Phoneme</p>
+                        <i class="fa fa-angle-double-right"></i>
+                    </div>
                     <div option="langSelect" class="dropdown transition">
                     </div>
                 </div>
@@ -56,6 +90,22 @@
         <div id="about" class="optionContainer">
             <div class="temp card">
                 <h2>Currently in progress!</h2>
+            </div>
+        </div>
+    </div>
+    <div id="newLanguage" class="transition">
+        <div class="card transition">
+            <h2>Add Language</h2>
+            <div id="newLanguageName">
+                <p>Name:</p>
+                <input>
+            </div>
+            <div id="newLanguagePhonemes">
+                <p>Phonemes:</p>
+                <textarea></textarea>
+            </div>
+            <div id="newLanguageSubmit">
+                <p class="card">Submit!</p>
             </div>
         </div>
     </div>

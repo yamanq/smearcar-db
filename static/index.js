@@ -1,15 +1,17 @@
 var navSelect = "home";
+var dataMode 
 var serverURL = window.location.origin;
 var data;
 var languageChart;
 var dataOpen = false;
+var submittable = true;
 
 // var trelloInfo = {};
 
 
 var navi = [ // Array containing navigation items in form [Font-Awesome class name, Display Text, Onclick function].
     ["home", "Home", "home"],
-    ["bar-chart", "Data Values", "dataValues"],
+    ["bar-chart", "Data Values", "dataValues1"],
     ["database", "Database and Files", "files"],
     ["info", "About", "about"]
 ];
@@ -127,9 +129,111 @@ function phoneme(p) {
     });
 }
 
+document.getElementById("flipMode").onclick = function() {
+    dropOpStore["flipMode"] = (dropOpStore["flipMode"] === "language") ? "phoneme" : "language";
+
+}
+
 function generateDropOp() { // For options that change based on data.
     dropOp["langSelect"] = [function() { // Function that occurs when change language.
         // Generate info box material.
+        var langInfo = language(dropOpStore["langSelect"]);
+        var info = document.getElementById("langInfoCont");
+        var dataBox = document.getElementById("dataTableCont");
+        var graph = document.querySelectorAll("#langGraph > canvas")[0];
+        info.style.opacity = "0";
+        dataBox.style.opacity = "0";
+        graph.style.opacity = "0";
+        setTimeout(function() {
+            while (info.firstChild) {
+                info.removeChild(info.firstChild);
+            }
+            var p = document.createElement("p");
+            var p2 = document.createElement("p");
+            var a = document.createElement("a");
+            p.appendChild(document.createTextNode("Type: " + (langInfo.type || "N/A")));
+            p2.appendChild(document.createTextNode("Source: "));
+            if(langInfo.source === null) {
+                p2.appendChild(document.createTextNode("N/A"));
+            } else if(langInfo.source.length > 0) {
+                a.href = langInfo.source;
+                srcText = (langInfo.source.length > 60) ? langInfo.source.substring(0, 57) + "..." : langInfo.source;
+                a.appendChild(document.createTextNode(srcText));
+                p2.appendChild(a); 
+            }
+            info.appendChild(p);
+            info.appendChild(p2);
+            
+            // Generate data box material.
+            
+            var phonemes = Object.keys(langInfo.phonemes);
+            
+            while (dataBox.firstChild) {
+                dataBox.removeChild(dataBox.firstChild);
+            }
+            dataBox.style.gridTemplateColumns = "repeat("+Math.ceil(phonemes.length/6).toString() + ", 1fr)";
+            for(var i = 0; i < 9; i++) dataBox.appendChild(document.createElement("div")); // Extra divs will be filled if necessary.
+            for(i = 0; i < phonemes.length; i++) {
+                var tableNum = Math.floor(i/6);
+                var row = i+2-tableNum*7;
+                var p1 = document.createElement("p");
+                var p2 = document.createElement("p");
+                p1.style.textAlign = "right";
+                p2.style.textAlign = "left";
+                p1.style.borderRight = "1px solid #D5D5D5";
+                if(i%6 === 0) {
+                    var pT1 = document.createElement("p");
+                    var pT2 = document.createElement("p");
+                    pT1.style.textAlign = "right";
+                    pT2.style.textAlign = "left";
+                    pT1.style.borderRight = "1px solid #D5D5D5";
+                    pT1.style.borderBottom = "1px solid #D5D5D5";
+                    pT2.style.borderBottom = "1px solid #D5D5D5";
+                    pT1.appendChild(document.createTextNode("Phoneme"));
+                    pT2.appendChild(document.createTextNode("Percent"));
+                    dataBox.children[tableNum].appendChild(pT1);
+                    dataBox.children[tableNum].appendChild(pT2);
+                } 
+                p1.appendChild(document.createTextNode(phonemes[i]));
+                p2.appendChild(document.createTextNode(langInfo.phonemes[phonemes[i]]));
+                /*p2.className = "dataEdit"; Editing individual data
+                p2.onclick = function(event) {
+                    if(this === event.target) return;
+                    closeEditInput();
+                    dataOpen = true;
+                    var input = document.createElement("input");
+                    var value = this.childNodes[0].nodeValue;
+                    this.removeChild(this.childNodes[0]);
+                    this.appendChild(input);
+                    input.value = value;
+                    input.id = "dataOpen";
+                    input.focus();
+                }*/ 
+                dataBox.children[tableNum].appendChild(p1);
+                dataBox.children[tableNum].appendChild(p2);
+            }
+            var graphData = Object.entries(langInfo.phonemes).sort(function(a,b) {
+                return b[1] - a[1];
+            });
+            graphData = [graphData.map(function(a,b) {
+                return a[0];
+            }), graphData.map(function(a,b) {
+                return a[1];
+            })];
+            // Generate graphs.
+            var ctx = graph.getContext("2d");
+            try { 
+                languageChart.destroy();
+            } catch(err) {}
+            languageChart = new Chart(ctx, chartOptions(graphData));
+            info.style.opacity = "1";
+            dataBox.style.opacity = "1";
+            graph.style.opacity = "1";
+        }, 300);
+    }].concat(["Select language..."].concat(data.languages));
+
+   /* dropOp["phonemeSelect"] = [function() {
+         // Generate info box material.
         var langInfo = language(dropOpStore["langSelect"]);
         var info = document.getElementById("langInfoCont");
         var dataBox = document.getElementById("dataTableCont");
@@ -218,64 +322,12 @@ function generateDropOp() { // For options that change based on data.
             try { 
                 languageChart.destroy();
             } catch(err) {}
-            languageChart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: graphData[0],
-                    datasets: [{
-                        label: "Phoneme Prevalence",
-                        data: graphData[1],
-                        backgroundColor: 'rgba(244, 121, 34, 0.7)',
-                        borderColor: 'rgba(246, 112, 18, 1)',
-                        borderWidth: 2
-                    }]
-                },
-                options: {
-                    legend: {
-                        labels: {
-                            fontFamily: "'Open Sans Condensed', sans-serif",
-                            fontSize: 20
-                        }
-                    },
-                    scales: {
-                        yAxes: [{
-                            scaleLabel: {
-                                display: true,
-                                labelString: "Phoneme (%)",
-                                fontFamily: "'Open Sans Condensed', sans-serif",
-                                fontSize: 20,
-                                padding: 4
-                            },
-                            ticks: {
-                                fontFamily: "'Open Sans Condensed', sans-serif",
-                                fontSize: 20,
-                                callback: function(value) {
-                                    return value + "%";
-                                }
-                            }
-                        }],
-                        xAxes: [{
-                            scaleLabel: {
-                                display: true,
-                                labelString: "Percent Prevalence",
-                                fontFamily: "'Open Sans Condensed', sans-serif",
-                                fontSize: 20,
-                                padding: 4
-                            },
-                            ticks: {
-                                fontFamily: "'Open Sans Condensed', sans-serif",
-                                fontSize: 20
-                            }
-                        }],
-
-                    }
-                }
-            });
+            languageChart = new Chart(ctx, chartOptions(graphData));
             info.style.opacity = "1";
             dataBox.style.opacity = "1";
             graph.style.opacity = "1";
         }, 300);
-    }].concat(["Select language..."].concat(data.languages));
+    }]*/
 }
 
 function closeEditInput() {
@@ -318,7 +370,10 @@ document.addEventListener("click", function(event) {
 
 function createDrop() {
     var dropButtons = document.getElementsByClassName("dropdown");
-    for (var i = 0; i < dropButtons.length; i++) {
+    for(var i = 0; i < dropButtons.length; i++) {
+        while(dropButtons[i].firstChild) dropButtons[i].removeChild(dropButtons[i].firstChild);
+    }
+    for (i = 0; i < dropButtons.length; i++) {
         var div = document.createElement("div");
         div.className = "button";
         var p = document.createElement("p");
@@ -421,6 +476,136 @@ function homeCards() {
     }
 }
 
+function chartOptions(graphData) {
+    return {
+        type: 'bar',
+        data: {
+            labels: graphData[0],
+            datasets: [{
+                label: "Phoneme Prevalence",
+                data: graphData[1],
+                backgroundColor: 'rgba(244, 121, 34, 0.7)',
+                borderColor: 'rgba(246, 112, 18, 1)',
+                borderWidth: 2
+            }]
+        },
+        options: {
+            legend: {
+                labels: {
+                    fontFamily: "'Open Sans Condensed', sans-serif",
+                    fontSize: 20
+                }
+            },
+            scales: {
+                yAxes: [{
+                    scaleLabel: {
+                        display: true,
+                        labelString: "Phoneme (%)",
+                        fontFamily: "'Open Sans Condensed', sans-serif",
+                        fontSize: 20,
+                        padding: 4
+                    },
+                    ticks: {
+                        fontFamily: "'Open Sans Condensed', sans-serif",
+                        fontSize: 20,
+                        callback: function(value) {
+                            return value + "%";
+                        }
+                    }
+                }],
+                xAxes: [{
+                    scaleLabel: {
+                        display: true,
+                        labelString: "Percent Prevalence",
+                        fontFamily: "'Open Sans Condensed', sans-serif",
+                        fontSize: 20,
+                        padding: 4
+                    },
+                    ticks: {
+                        fontFamily: "'Open Sans Condensed', sans-serif",
+                        fontSize: 20
+                    }
+                }]
+            }
+        }
+    };
+}
+
+document.getElementById("addData").onclick = function() { // Open add language.
+    document.getElementById("newLanguage").style.display = "block";
+    setTimeout(function() {
+        document.getElementById("newLanguage").style.opacity = "1";
+    }, 10);
+}
+
+document.getElementById("newLanguage").onclick = function(event) { // Close add language.
+    document.getElementById("newLanguage").style.opacity = "0";
+    setTimeout(function() {
+       document.getElementById("newLanguage").style.display = "none"; 
+    }, 300);
+}
+
+document.querySelectorAll("#newLanguage > div")[0].onclick = function(event) {
+    event.stopPropagation();
+}
+
+document.querySelectorAll("#newLanguageSubmit p")[0].onclick = function() {
+    if(!submittable) return;
+    submittable = false;
+    var name = document.querySelectorAll("#newLanguageName input")[0].value;
+    if(name === "") {
+        alert("Please enter in the name for language!");
+        return;
+    }
+    var info = document.querySelectorAll("#newLanguagePhonemes textarea")[0].value;
+    if(info === "") {
+        alert("Please enter in the values for phonemes!");
+        return;
+    }
+    info = info.split("\n");
+    var phonemes = {};
+    for(var i = 0; i < info.length; i++) {
+        info[i] = info[i].split(/[ ,]+/);
+        var num = parseFloat(info[i][1]);
+        if(isNaN(num)) {
+            alert("Value for " + info[i][0] + " is not a number or does not exist!");
+            return;
+        }
+        phonemes[info[i][0]] = num;
+    }
+    var newLanguage = {
+        name: name,
+        source: null,
+        phonemes: phonemes
+    };
+    console.log(newLanguage);
+    this.innerText = "Processing...";
+    this.style.backgroundColor = "rgba(0,0,0,0.2)";
+    var p = this;
+    $.ajax({
+        url: serverURL + '/server',
+        type: 'POST',
+        dataType: "json",
+        contentType: 'application/json;charset=UTF-8',
+        data: JSON.stringify(newLanguage)
+    })
+    .then(
+        function success(incoming) {
+            document.getElementById("newLanguage").style.opacity = "0";
+            setTimeout(function() {
+                document.getElementById("newLanguage").style.display = "none";
+                submittable = true;
+                p.innerText = "Submit!";
+                p.style.backgroundColor = "#FEFEFE";
+            }, 300);
+            getData();
+        },
+        function error(e) {
+            alert("There was an error adding a language");
+            console.log(e);
+        }
+    );
+}
 /*function getTrelloCards() {
     Trello.authorize();
     var cardArr, listArr, lists;
@@ -452,3 +637,4 @@ getData();
 homeCards();
 createNav();
 updateNav(navSelect);
+
