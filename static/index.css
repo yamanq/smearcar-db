@@ -176,8 +176,10 @@ a {
 	background-color: #FEFEFE;
 	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
 	color: black;
-	transition: all 0.3s cubic-bezier(.25, .8, .25, 1);
-	grid-template-columns: 35% auto 25% 15%;
+
+	transition: all 0.3s cubic-bezier(.25,.8,.25,1);
+
+	grid-template-columns: 35% auto 50%;
 	grid-template-rows: 6vh auto;
 }
 
@@ -200,7 +202,9 @@ a {
 	font-size: 1.8vh;
 	grid-column: 3 / 5;
 	grid-row: 1;
+	margin: auto 2vh auto 0;
 	text-align: right;
+	font-weight: 300;
 }
 
 .card > div {
@@ -273,7 +277,6 @@ a {
 	display: inline-block;
 	grid-column: 1;
 	grid-row: 1;
-	d
 	pointer-events: none;
 }
 
