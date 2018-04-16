@@ -93,7 +93,7 @@ function updateNav(op) { // Updates the sidebar navigation.
     newNav.style.color = "#F47922";
 }
 
-function getData() {
+function getData(updatePage) {
     $.ajax({
             url: serverURL + '/server',
             type: 'GET'
@@ -103,6 +103,8 @@ function getData() {
                 data = incoming;
                 generateDropOp();
                 createDrop();
+                if(updatePage) dropOpUpdate("langSelect");
+
             },
             function error(e) {
                 console.log(e);
@@ -196,19 +198,6 @@ function generateDropOp() { // For options that change based on data.
                 } 
                 p1.appendChild(document.createTextNode(phonemes[i]));
                 p2.appendChild(document.createTextNode(langInfo.phonemes[phonemes[i]]));
-                /*p2.className = "dataEdit"; Editing individual data
-                p2.onclick = function(event) {
-                    if(this === event.target) return;
-                    closeEditInput();
-                    dataOpen = true;
-                    var input = document.createElement("input");
-                    var value = this.childNodes[0].nodeValue;
-                    this.removeChild(this.childNodes[0]);
-                    this.appendChild(input);
-                    input.value = value;
-                    input.id = "dataOpen";
-                    input.focus();
-                }*/ 
                 dataBox.children[tableNum].appendChild(p1);
                 dataBox.children[tableNum].appendChild(p2);
             }
@@ -230,104 +219,7 @@ function generateDropOp() { // For options that change based on data.
             dataBox.style.opacity = "1";
             graph.style.opacity = "1";
         }, 300);
-    }].concat(["Select language..."].concat(data.languages));
-
-   /* dropOp["phonemeSelect"] = [function() {
-         // Generate info box material.
-        var langInfo = language(dropOpStore["langSelect"]);
-        var info = document.getElementById("langInfoCont");
-        var dataBox = document.getElementById("dataTableCont");
-        var graph = document.querySelectorAll("#langGraph > canvas")[0];
-        info.style.opacity = "0";
-        dataBox.style.opacity = "0";
-        graph.style.opacity = "0";
-        setTimeout(function() {
-            while (info.firstChild) {
-                info.removeChild(info.firstChild);
-            }
-            var p = document.createElement("p");
-            var p2 = document.createElement("p");
-            var a = document.createElement("a");
-            p.appendChild(document.createTextNode("Type: " + (langInfo.type || "N/A")));
-            p2.appendChild(document.createTextNode("Source: "));
-            if(langInfo.source === null) {
-                p2.appendChild(document.createTextNode("N/A"));
-            } else if(langInfo.source.length > 0) {
-                a.href = langInfo.source;
-                srcText = (langInfo.source.length > 60) ? langInfo.source.substring(0, 57) + "..." : langInfo.source;
-                a.appendChild(document.createTextNode(srcText));
-                p2.appendChild(a); 
-            }
-            info.appendChild(p);
-            info.appendChild(p2);
-            
-            // Generate data box material.
-            
-            var phonemes = Object.keys(langInfo.phonemes);
-            
-            while (dataBox.firstChild) {
-                dataBox.removeChild(dataBox.firstChild);
-            }
-            dataBox.style.gridTemplateColumns = "repeat("+Math.ceil(phonemes.length/6).toString() + ", 1fr)";
-            for(var i = 0; i < 9; i++) dataBox.appendChild(document.createElement("div")); // Extra divs will be filled if necessary.
-            for(i = 0; i < phonemes.length; i++) {
-                var tableNum = Math.floor(i/6);
-                var row = i+2-tableNum*7;
-                var p1 = document.createElement("p");
-                var p2 = document.createElement("p");
-                p1.style.textAlign = "right";
-                p2.style.textAlign = "left";
-                p1.style.borderRight = "1px solid #D5D5D5";
-                if(i%6 === 0) {
-                    var pT1 = document.createElement("p");
-                    var pT2 = document.createElement("p");
-                    pT1.style.textAlign = "right";
-                    pT2.style.textAlign = "left";
-                    pT1.style.borderRight = "1px solid #D5D5D5";
-                    pT1.style.borderBottom = "1px solid #D5D5D5";
-                    pT2.style.borderBottom = "1px solid #D5D5D5";
-                    pT1.appendChild(document.createTextNode("Phoneme"));
-                    pT2.appendChild(document.createTextNode("Percent"));
-                    dataBox.children[tableNum].appendChild(pT1);
-                    dataBox.children[tableNum].appendChild(pT2);
-                } 
-                p1.appendChild(document.createTextNode(phonemes[i]));
-                p2.appendChild(document.createTextNode(langInfo.phonemes[phonemes[i]]));
-                p2.className = "dataEdit";
-                p2.onclick = function(event) {
-                    if(this === event.target) return;
-                    closeEditInput();
-                    dataOpen = true;
-                    var input = document.createElement("input");
-                    var value = this.childNodes[0].nodeValue;
-                    this.removeChild(this.childNodes[0]);
-                    this.appendChild(input);
-                    input.value = value;
-                    input.id = "dataOpen";
-                    input.focus();
-                } 
-                dataBox.children[tableNum].appendChild(p1);
-                dataBox.children[tableNum].appendChild(p2);
-            }
-            var graphData = Object.entries(langInfo.phonemes).sort(function(a,b) {
-                return b[1] - a[1];
-            });
-            graphData = [graphData.map(function(a,b) {
-                return a[0];
-            }), graphData.map(function(a,b) {
-                return a[1];
-            })];
-            // Generate graphs.
-            var ctx = graph.getContext("2d");
-            try { 
-                languageChart.destroy();
-            } catch(err) {}
-            languageChart = new Chart(ctx, chartOptions(graphData));
-            info.style.opacity = "1";
-            dataBox.style.opacity = "1";
-            graph.style.opacity = "1";
-        }, 300);
-    }]*/
+    }].concat(["Select language..."].concat(data.languages))
 }
 
 function closeEditInput() {
@@ -362,12 +254,6 @@ function closeEditInput() {
     } catch(err) {}
 }
 
-document.addEventListener("click", function(event) {
-    if(event.target.className !== "dataEdit") {
-        closeEditInput();
-    }
-});
-
 function createDrop() {
     var dropButtons = document.getElementsByClassName("dropdown");
     for(var i = 0; i < dropButtons.length; i++) {
@@ -386,6 +272,18 @@ function createDrop() {
         div.appendChild(ic);
         var div2 = document.createElement("div");
         div2.className = "opCont transition";
+
+        var p3 = document.createElement("p");
+        p3.className = "transition";
+        p3.onclick = function() { // Open add language.
+            document.getElementById("newLanguage").style.display = "block";
+            setTimeout(function() {
+                document.getElementById("newLanguage").style.opacity = "1";
+            }, 10);
+        }
+        p3.appendChild(document.createTextNode("Add language..."));
+        div2.appendChild(p3);
+
         for (var j = 2; j < dropOp[op].length; j++) {
             var p2 = document.createElement("p");
             p2.className = "transition";
@@ -402,6 +300,7 @@ function createDrop() {
             p2.appendChild(document.createTextNode(dropOp[op][j]));
             div2.appendChild(p2);
         }
+
         div.onclick = function(e) {
             e.stopPropagation();
             let opCont = this.nextElementSibling;
@@ -531,22 +430,35 @@ function chartOptions(graphData) {
     };
 }
 
-document.getElementById("addData").onclick = function() { // Open add language.
-    document.getElementById("newLanguage").style.display = "block";
-    setTimeout(function() {
-        document.getElementById("newLanguage").style.opacity = "1";
-    }, 10);
-}
-
 document.getElementById("newLanguage").onclick = function(event) { // Close add language.
     document.getElementById("newLanguage").style.opacity = "0";
     setTimeout(function() {
        document.getElementById("newLanguage").style.display = "none"; 
     }, 300);
+    document.getElementById("editLanguage").style.opacity = "0";
+    setTimeout(function() {
+       document.getElementById("editLanguage").style.display = "none"; 
+    }, 300);
 }
 
 document.querySelectorAll("#newLanguage > div")[0].onclick = function(event) {
     event.stopPropagation();
+}
+
+document.getElementById("editData").onclick = function() { // Open edit language.
+    var langInfo = language(dropOpStore["langSelect"]);
+    document.querySelectorAll("#editLanguageName input")[0].value = langInfo.name;
+    var k = Object.keys(langInfo.phonemes);
+    var v = Object.values(langInfo.phonemes);
+    var str = "";
+    for(var i = 0; i < k.length; i++) {
+        str += k[i] + " " + v[i] + ((i === k.length-1) ? "" : "\n");
+    }
+    document.querySelectorAll("#editLanguagePhonemes textarea")[0].value = str;
+    document.getElementById("editLanguage").style.display = "block";
+    setTimeout(function() {
+        document.getElementById("editLanguage").style.opacity = "1";
+    }, 10);
 }
 
 document.querySelectorAll("#newLanguageSubmit p")[0].onclick = function() {
@@ -555,11 +467,13 @@ document.querySelectorAll("#newLanguageSubmit p")[0].onclick = function() {
     var name = document.querySelectorAll("#newLanguageName input")[0].value;
     if(name === "") {
         alert("Please enter in the name for language!");
+        submittable = true;
         return;
     }
     var info = document.querySelectorAll("#newLanguagePhonemes textarea")[0].value;
     if(info === "") {
         alert("Please enter in the values for phonemes!");
+        submittable = true;
         return;
     }
     info = info.split("\n");
@@ -569,6 +483,7 @@ document.querySelectorAll("#newLanguageSubmit p")[0].onclick = function() {
         var num = parseFloat(info[i][1]);
         if(isNaN(num)) {
             alert("Value for " + info[i][0] + " is not a number or does not exist!");
+            submittable = true;
             return;
         }
         phonemes[info[i][0]] = num;
@@ -578,7 +493,7 @@ document.querySelectorAll("#newLanguageSubmit p")[0].onclick = function() {
         source: null,
         phonemes: phonemes
     };
-    console.log(newLanguage);
+
     this.innerText = "Processing...";
     this.style.backgroundColor = "rgba(0,0,0,0.2)";
     var p = this;
@@ -600,14 +515,198 @@ document.querySelectorAll("#newLanguageSubmit p")[0].onclick = function() {
                 document.querySelectorAll("#newLanguageName input")[0].value = "";
                 document.querySelectorAll("#newLanguagePhonemes textarea")[0].value = "";
             }, 300);
-            getData();
+            getData(true);
         },
         function error(e) {
-            alert("There was an error adding a language");
+            alert("There was an error adding a language.");
             console.log(e);
         }
     );
 }
+
+document.querySelectorAll("#editLanguageSubmit p")[0].onclick = function() {
+    if(!submittable) return;
+    var langInfo = language(dropOpStore["langSelect"]);
+    submittable = false;
+    var name = document.querySelectorAll("#editLanguageName input")[0].value;
+    if(name === "") {
+        alert("Please enter in the name for language!");
+        submittable = true;
+        return;
+    }
+    var info = document.querySelectorAll("#editLanguagePhonemes textarea")[0].value;
+    if(info === "") {
+        alert("Please enter in the values for phonemes!");
+        submittable = true;
+        return;
+    }
+    info = info.split("\n");
+    var newPhonemes = {};
+    for(var i = 0; i < info.length; i++) {
+        info[i] = info[i].split(/[ ,]+/);
+        var num = parseFloat(info[i][1]);
+        if(isNaN(num)) {
+            alert("Value for " + info[i][0] + " is not a number or does not exist!");
+            submittable = true;
+            return;
+        }
+        newPhonemes[info[i][0]] = num;
+    }
+
+    this.innerText = "Processing...";
+    this.style.backgroundColor = "rgba(0,0,0,0.2)";
+    var p = this;
+
+    var diffChange = [];
+    var diffRemove = [];
+    var phoKeys = Object.keys(langInfo.phonemes);
+    for(var i = 0; i < phoKeys.length; i++) {
+        if(newPhonemes[phoKeys[i]] === undefined) {
+            diffRemove.push(phoKeys[i]);
+        } else if(langInfo.phonemes[phoKeys[i]] !== newPhonemes[phoKeys[i]]) {
+            diffChange.push(phoKeys[i]); 
+        } else {
+            continue;
+        }
+    }
+
+    var todo = {
+        name: newLanguage.name !== langInfo.name,
+        add: diffChange.length > 0,
+        remove: diffRemove.length > 0
+    }
+
+    var error = false;
+
+    if(todo.name) { // Ajax requests for changing name.
+        $.ajax({
+            url: serverURL + '/server',
+            type: 'PATCH',
+            dataType: "json",
+            contentType: 'application/json;charset=UTF-8',
+            data: JSON.stringify({
+                action: "language_name_edit",
+                data: {
+                    language_id: langInfo.id,
+                    language_name: name
+                }
+            })
+        })
+        .then(
+            function success(incoming) {
+                if(todo.name && !todo.add && !todo.remove) {
+                    document.getElementById("editLanguage").style.opacity = "0";
+                    setTimeout(function() {
+                        document.getElementById("editLanguage").style.display = "none";
+                        submittable = true;
+                        p.innerText = "Submit!";
+                        p.style.backgroundColor = "#FEFEFE";
+                        document.querySelectorAll("#editLanguageName input")[0].value = "";
+                        document.querySelectorAll("#editLanguagePhonemes textarea")[0].value = "";
+                    }, 300);
+                    getData(true);
+                }
+            },
+            function error(e) {
+                error = true;
+                alert("There was an error change the language name.");
+                console.log(e);
+            }
+        );
+    }
+
+    if(error) return;
+
+    for(var i = 0; i < diffChange.length; i++) { // Ajax requests for adding or editing phonemes.
+        $.ajax({
+            url: serverURL + '/server',
+            type: 'PATCH',
+            dataType: "json",
+            contentType: 'application/json;charset=UTF-8',
+            context: {counter: i},
+            data: JSON.stringify({
+                action: "phoneme_add",
+                data: {
+                    language_id: langInfo.id,
+                    phoneme: diffChange[i],
+                    value: newPhonemes[diffChange[i]]
+                }
+            })
+        })
+        .then(
+            function success(incoming) {
+                if(todo.add && !todo.remove && this.counter === diffChange.length-1) {
+                    document.getElementById("editLanguage").style.opacity = "0";
+                    setTimeout(function() {
+                        document.getElementById("editLanguage").style.display = "none";
+                        submittable = true;
+                        p.innerText = "Submit!";
+                        p.style.backgroundColor = "#FEFEFE";
+                        document.querySelectorAll("#editLanguageName input")[0].value = "";
+                        document.querySelectorAll("#editLanguagePhonemes textarea")[0].value = "";
+                    }, 300);
+                    getData(true);
+                }
+                
+            },
+            function error(e) {
+                error = true;
+                alert("There was an error change the phoneme values.");
+                console.log(e);
+            }
+        );
+    }
+
+    if(error) return;
+
+    console.log({
+                action: "phoneme_remove",
+                data: {
+                    language_id: langInfo.id,
+                    phoneme_id: diffRemove[i]
+                }
+            })
+
+    for(var i = 0; i < diffRemove.length; i++) { // Ajax requests for removing phoneme values.
+        $.ajax({
+            url: serverURL + '/server',
+            type: 'PATCH',
+            dataType: "json",
+            contentType: 'application/json;charset=UTF-8',
+            context: {counter: i},
+            data: JSON.stringify({
+                action: "phoneme_remove",
+                data: {
+                    language_id: langInfo.id,
+                    phoneme_id: diffRemove[i]
+                }
+            })
+        })
+        .then(
+            function success(incoming) {
+                if(this.counter === diffRemove.length-1) {
+                    document.getElementById("editLanguage").style.opacity = "0";
+                    setTimeout(function() {
+                        document.getElementById("editLanguage").style.display = "none";
+                        submittable = true;
+                        p.innerText = "Submit!";
+                        p.style.backgroundColor = "#FEFEFE";
+                        document.querySelectorAll("#editLanguageName input")[0].value = "";
+                        document.querySelectorAll("#editLanguagePhonemes textarea")[0].value = "";
+                    }, 300);
+                    getData(true);
+                }
+                
+            },
+            function error(e) {
+                error = true;
+                alert("There was an error removing phoneme values.");
+                console.log(e);
+            }
+        );
+    }
+}
+
 /*function getTrelloCards() {
     Trello.authorize();
     var cardArr, listArr, lists;
