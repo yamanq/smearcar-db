@@ -48,6 +48,18 @@ var dropOpStore = {};
 //     }
 // }
 
+// This Function is property of https://stackoverflow.com/questions/10015027/javascript-tofixed-not-rounding/32605063#32605063
+function roundTo(n, digits) {
+    if (digits === undefined) {
+        digits = 0;
+    }
+
+    var multiplicator = Math.pow(10, digits);
+    n = parseFloat((n * multiplicator).toFixed(11));
+    return Math.round(n) / multiplicator;
+}
+
+
 function createNav() {
     for (var i = 0; i < navi.length; i++) { // Create navigation tabs.
         var side = document.getElementById("sidebar");
@@ -211,7 +223,7 @@ function generateDropOp() { // For options that change based on data.
                     dataBox.children[tableNum].appendChild(pT2);
                 }
                 p1.appendChild(document.createTextNode(phonemes[i]));
-                p2.appendChild(document.createTextNode(langInfo.phonemes[phonemes[i]]));
+                p2.appendChild(document.createTextNode(roundTo(langInfo.phonemes[phonemes[i]], 2)));
                 dataBox.children[tableNum].appendChild(p1);
                 dataBox.children[tableNum].appendChild(p2);
             }
