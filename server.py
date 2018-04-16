@@ -60,9 +60,9 @@ class Editor(db.Model):
 
 def database():
     final = {'values': []}
-    final['languages'] = [f.name for f in Language.query.all()]
+    final['languages'] = [f.name for f in Language.query.order_by(Language.name).all()]
     final['phonemes'] = [f.name for f in Phoneme.query.all()]
-    for language in Language.query.all():
+    for language in Language.query.order_by(Language.name).all():
         languageobject = {'id': language.id,
                           'name': language.name,
                           'source': language.source,
@@ -70,6 +70,7 @@ def database():
         for frequency in language.phonemes:
             languageobject['phonemes'][frequency.phoneme.name] = frequency.value
         final['values'].append(languageobject)
+    print(final)
     return final
 
 def phoneme_add(info):

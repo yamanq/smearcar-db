@@ -1,5 +1,5 @@
 var navSelect = "home";
-var dataMode 
+var dataMode;
 var serverURL = window.location.origin;
 var data;
 var languageChart;
@@ -17,11 +17,11 @@ var navi = [ // Array containing navigation items in form [Font-Awesome class na
 ];
 
 var members = [
-    "Kenneth Jao", "Yaman Qalieh", "Enrico Colon", "Arav Agarwal"
+    "Kenneth Jao", "Yaman Qalieh", "Enrico Colon"
 ];
 
 var dropOp = {
-    //Insert correct   
+    //Insert correct
 };
 
 var dropOpStore = {};
@@ -76,7 +76,7 @@ function updateMain(op) { // Updates the actual page.
     setTimeout(function() {
         console.log(op);
         document.getElementById(navSelect).style.display = "none";
-        document.getElementById(op).style.display = "block";   
+        document.getElementById(op).style.display = "block";
         setTimeout(function() {
             document.getElementById(op).style.opacity = "1";
         }, 30);
@@ -161,15 +161,15 @@ function generateDropOp() { // For options that change based on data.
                 a.href = langInfo.source;
                 srcText = (langInfo.source.length > 60) ? langInfo.source.substring(0, 57) + "..." : langInfo.source;
                 a.appendChild(document.createTextNode(srcText));
-                p2.appendChild(a); 
+                p2.appendChild(a);
             }
             info.appendChild(p);
             info.appendChild(p2);
-            
+
             // Generate data box material.
-            
+
             var phonemes = Object.keys(langInfo.phonemes);
-            
+
             while (dataBox.firstChild) {
                 dataBox.removeChild(dataBox.firstChild);
             }
@@ -195,7 +195,7 @@ function generateDropOp() { // For options that change based on data.
                     pT2.appendChild(document.createTextNode("Percent"));
                     dataBox.children[tableNum].appendChild(pT1);
                     dataBox.children[tableNum].appendChild(pT2);
-                } 
+                }
                 p1.appendChild(document.createTextNode(phonemes[i]));
                 p2.appendChild(document.createTextNode(langInfo.phonemes[phonemes[i]]));
                 dataBox.children[tableNum].appendChild(p1);
@@ -211,7 +211,7 @@ function generateDropOp() { // For options that change based on data.
             })];
             // Generate graphs.
             var ctx = graph.getContext("2d");
-            try { 
+            try {
                 languageChart.destroy();
             } catch(err) {}
             languageChart = new Chart(ctx, chartOptions(graphData));
@@ -219,7 +219,7 @@ function generateDropOp() { // For options that change based on data.
             dataBox.style.opacity = "1";
             graph.style.opacity = "1";
         }, 300);
-    }].concat(["Select language..."].concat(data.languages))
+    }].concat(["Select language..."].concat(data.languages));
 }
 
 function closeEditInput() {
@@ -280,7 +280,7 @@ function createDrop() {
             setTimeout(function() {
                 document.getElementById("newLanguage").style.opacity = "1";
             }, 10);
-        }
+        };
         p3.appendChild(document.createTextNode("Add language..."));
         div2.appendChild(p3);
 
@@ -335,7 +335,7 @@ document.onclick = function(event) {
             opCont.style.display = "none";
         }, 300);
     }
-}
+};
 
 function homeCards() {
     // GET posts from server
@@ -365,7 +365,7 @@ function homeCards() {
             d = (d.length === 1) ? "0" + d : d;
             return m+"/"+d+"/"+dt.getFullYear().toString();
         })();
-        var fullDate = week[dt.getDay()] + ", " + month[dt.getMonth()] + " " + dt.getDate().toString() + ", " + dt.getFullYear().toString(); 
+        var fullDate = week[dt.getDay()] + ", " + month[dt.getMonth()] + " " + dt.getDate().toString() + ", " + dt.getFullYear().toString();
         h3.textContent = smallDate + " | " + fullDate;
         div.appendChild(h3);
         var p = document.createElement("p");
@@ -433,17 +433,17 @@ function chartOptions(graphData) {
 document.getElementById("newLanguage").onclick = function(event) { // Close add language.
     document.getElementById("newLanguage").style.opacity = "0";
     setTimeout(function() {
-       document.getElementById("newLanguage").style.display = "none"; 
+       document.getElementById("newLanguage").style.display = "none";
     }, 300);
     document.getElementById("editLanguage").style.opacity = "0";
     setTimeout(function() {
-       document.getElementById("editLanguage").style.display = "none"; 
+       document.getElementById("editLanguage").style.display = "none";
     }, 300);
-}
+};
 
 document.querySelectorAll("#newLanguage > div")[0].onclick = function(event) {
     event.stopPropagation();
-}
+};
 
 document.getElementById("editData").onclick = function() { // Open edit language.
     var langInfo = language(dropOpStore["langSelect"]);
@@ -459,7 +459,7 @@ document.getElementById("editData").onclick = function() { // Open edit language
     setTimeout(function() {
         document.getElementById("editLanguage").style.opacity = "1";
     }, 10);
-}
+};
 
 document.querySelectorAll("#newLanguageSubmit p")[0].onclick = function() {
     if(!submittable) return;
@@ -522,7 +522,7 @@ document.querySelectorAll("#newLanguageSubmit p")[0].onclick = function() {
             console.log(e);
         }
     );
-}
+};
 
 document.querySelectorAll("#editLanguageSubmit p")[0].onclick = function() {
     if(!submittable) return;
@@ -564,7 +564,7 @@ document.querySelectorAll("#editLanguageSubmit p")[0].onclick = function() {
         if(newPhonemes[phoKeys[i]] === undefined) {
             diffRemove.push(phoKeys[i]);
         } else if(langInfo.phonemes[phoKeys[i]] !== newPhonemes[phoKeys[i]]) {
-            diffChange.push(phoKeys[i]); 
+            diffChange.push(phoKeys[i]);
         } else {
             continue;
         }
@@ -574,7 +574,7 @@ document.querySelectorAll("#editLanguageSubmit p")[0].onclick = function() {
         name: newLanguage.name !== langInfo.name,
         add: diffChange.length > 0,
         remove: diffRemove.length > 0
-    }
+    };
 
     var error = false;
 
@@ -647,7 +647,7 @@ document.querySelectorAll("#editLanguageSubmit p")[0].onclick = function() {
                     }, 300);
                     getData(true);
                 }
-                
+
             },
             function error(e) {
                 error = true;
@@ -665,7 +665,7 @@ document.querySelectorAll("#editLanguageSubmit p")[0].onclick = function() {
                     language_id: langInfo.id,
                     phoneme_id: diffRemove[i]
                 }
-            })
+    });
 
     for(var i = 0; i < diffRemove.length; i++) { // Ajax requests for removing phoneme values.
         $.ajax({
@@ -696,7 +696,7 @@ document.querySelectorAll("#editLanguageSubmit p")[0].onclick = function() {
                     }, 300);
                     getData(true);
                 }
-                
+
             },
             function error(e) {
                 error = true;
@@ -705,13 +705,13 @@ document.querySelectorAll("#editLanguageSubmit p")[0].onclick = function() {
             }
         );
     }
-}
+};
 
 /*function getTrelloCards() {
     Trello.authorize();
     var cardArr, listArr, lists;
     var cards = window.Trello.rest(
-        "GET", "boards/vm2c2IZd/cards", 
+        "GET", "boards/vm2c2IZd/cards",
         function success() {
             cardArr = JSON.parse(cards.responseText);
             lists = window.Trello.rest(
