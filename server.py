@@ -70,7 +70,6 @@ def database():
         for frequency in language.phonemes:
             languageobject['phonemes'][frequency.phoneme.name] = frequency.value
         final['values'].append(languageobject)
-    print(final)
     return final
 
 def phoneme_add(info):

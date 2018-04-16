@@ -74,7 +74,6 @@ function updateMain(op) { // Updates the actual page.
     updateNav(op);
     document.getElementById(navSelect).style.opacity = "0";
     setTimeout(function() {
-        console.log(op);
         document.getElementById(navSelect).style.display = "none";
         document.getElementById(op).style.display = "block";
         setTimeout(function() {
