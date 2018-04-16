@@ -173,7 +173,17 @@ function generateDropOp() { // For options that change based on data.
 
             // Generate data box material.
 
-            var phonemes = Object.keys(langInfo.phonemes);
+            var phonemes = Object.keys(langInfo.phonemes).sort(function(a, b) {
+                var A = Object.keys(a)[0]; // ignore upper and lowercase
+                var B = Object.keys(b)[0]; // ignore upper and lowercase
+                if (A < B) {
+                    return -1;
+                } else if (A > B) {
+                    return 1;
+                } else {
+                    return 0;
+                }
+            });;
 
             while (dataBox.firstChild) {
                 dataBox.removeChild(dataBox.firstChild);
