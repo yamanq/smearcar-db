@@ -103,8 +103,13 @@ function getData(updatePage) {
                 data = incoming;
                 generateDropOp();
                 createDrop();
-                if(updatePage) dropOpUpdate("langSelect");
-
+                if(updatePage === "add") {
+                    dropOpUpdate("langSelect");
+                    document.querySelectorAll(".dropdown[option='langSelect'] .opCont p[langid='"+(data.languages.length)+"']")[0].click();
+                } else if(updatePage === "edit") {
+                    dropOpUpdate("langSelect");
+                    document.querySelectorAll(".dropdown[option='langSelect'] .opCont p[langid='"+(dropOpStore["langSelect"])+"']")[0].click();
+                }
             },
             function error(e) {
                 console.log(e);
@@ -114,7 +119,7 @@ function getData(updatePage) {
 
 function language(language) {
     return data.values.filter(function(element) {
-        return element.name === language;
+        return element.id === parseInt(language);
     })[0];
 }
 
@@ -219,7 +224,7 @@ function generateDropOp() { // For options that change based on data.
             dataBox.style.opacity = "1";
             graph.style.opacity = "1";
         }, 300);
-    }].concat(["Select language..."].concat(data.languages));
+    }].concat(["Select language..."].concat(data.values.map(a=>a.id)));
 }
 
 function closeEditInput() {
@@ -286,10 +291,11 @@ function createDrop() {
 
         for (var j = 2; j < dropOp[op].length; j++) {
             var p2 = document.createElement("p");
+            p2.setAttribute("langId", dropOp[op][j]);
             p2.className = "transition";
             p2.onclick = function(e) {
                 e.stopPropagation();
-                dropOpStore[op] = this.textContent;
+                dropOpStore[op] = this.getAttribute("langId");
                 dropOpUpdate(op);
                 let opCont = this.parentNode;
                 opCont.style.opacity = "0";
@@ -297,7 +303,7 @@ function createDrop() {
                     opCont.style.display = "none";
                 }, 300);
             };
-            p2.appendChild(document.createTextNode(dropOp[op][j]));
+            p2.appendChild(document.createTextNode(language(dropOp[op][j]).name));
             div2.appendChild(p2);
         }
 
@@ -323,7 +329,7 @@ function createDrop() {
 
 function dropOpUpdate(op) {
     var dropdown = document.querySelectorAll(".dropdown[option=" + op + "] .button p")[0];
-    dropdown.textContent = dropOpStore[op];
+    dropdown.textContent = language(dropOpStore[op]).name;
     (dropOp[op][0])();
 }
 
@@ -515,7 +521,7 @@ document.querySelectorAll("#newLanguageSubmit p")[0].onclick = function() {
                 document.querySelectorAll("#newLanguageName input")[0].value = "";
                 document.querySelectorAll("#newLanguagePhonemes textarea")[0].value = "";
             }, 300);
-            getData(true);
+            getData("add");
         },
         function error(e) {
             alert("There was an error adding a language.");
@@ -604,7 +610,7 @@ document.querySelectorAll("#editLanguageSubmit p")[0].onclick = function() {
                         document.querySelectorAll("#editLanguageName input")[0].value = "";
                         document.querySelectorAll("#editLanguagePhonemes textarea")[0].value = "";
                     }, 300);
-                    getData(true);
+                    getData("edit");
                 }
             },
             function error(e) {
@@ -645,7 +651,7 @@ document.querySelectorAll("#editLanguageSubmit p")[0].onclick = function() {
                         document.querySelectorAll("#editLanguageName input")[0].value = "";
                         document.querySelectorAll("#editLanguagePhonemes textarea")[0].value = "";
                     }, 300);
-                    getData(true);
+                    getData("edit");
                 }
 
             },
@@ -694,7 +700,7 @@ document.querySelectorAll("#editLanguageSubmit p")[0].onclick = function() {
                         document.querySelectorAll("#editLanguageName input")[0].value = "";
                         document.querySelectorAll("#editLanguagePhonemes textarea")[0].value = "";
                     }, 300);
-                    getData(true);
+                    getData("edit");
                 }
 
             },
