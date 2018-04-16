@@ -559,6 +559,7 @@ document.querySelectorAll("#editLanguageSubmit p")[0].onclick = function() {
     }
     info = info.split("\n");
     var newPhonemes = {};
+    console.log(info);
     for(var i = 0; i < info.length; i++) {
         info[i] = info[i].split(/[ ,]+/);
         var num = parseFloat(info[i][1]);
@@ -569,26 +570,32 @@ document.querySelectorAll("#editLanguageSubmit p")[0].onclick = function() {
         }
         newPhonemes[info[i][0]] = num;
     }
+    console.log(newPhonemes);
 
     this.innerText = "Processing...";
     this.style.backgroundColor = "rgba(0,0,0,0.2)";
     var p = this;
 
-    var diffChange = [];
-    var diffRemove = [];
-    var phoKeys = Object.keys(langInfo.phonemes);
-    for(var i = 0; i < phoKeys.length; i++) {
-        if(newPhonemes[phoKeys[i]] === undefined) {
-            diffRemove.push(phoKeys[i]);
-        } else if(langInfo.phonemes[phoKeys[i]] !== newPhonemes[phoKeys[i]]) {
-            diffChange.push(phoKeys[i]);
+    var oldPhoneset = new Set(Object.keys(langInfo.phonemes));
+    var newPhoneset = new Set(Object.keys(newPhonemes));
+    var diffRemove = [...oldPhoneset].filter(x=>!newPhoneset.has(x));
+    var diffChange = [...newPhoneset].filter(x=>!oldPhoneset.has(x));
+    var union = [...newPhoneset].filter(x=>oldPhoneset.has(x));
+
+    for(var i = 0; i < union.length; i++) {
+        console.log(langInfo.phonemes[union[i]]);
+        console.log(newPhonemes[union[i]]);
+        if(newPhonemes[union[i]] === undefined) {
+            diffRemove.push(union[i]);
+        } else if(langInfo.phonemes[union[i]] !== newPhonemes[union[i]]) {
+            diffChange.push(union[i]);
         } else {
             continue;
         }
     }
 
     var todo = {
-        name: newLanguage.name !== langInfo.name,
+        name: name !== langInfo.name,
         add: diffChange.length > 0,
         remove: diffRemove.length > 0
     };
