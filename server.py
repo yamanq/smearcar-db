@@ -98,19 +98,19 @@ def phoneme_remove(info):
     """Remove a phoneme from a language."""
     # info = {
     #     language_id: language_id,
-    #     phoneme_id: phoneme_id
+    #     phoneme: phoneme_name
     # }
-    phoneme = Phoneme.query.filter_by(id=info['phoneme_id']).first()
+    phoneme = Phoneme.query.filter_by(name=info['phoneme']).first()
     language = Language.query.filter_by(id=info['language_id']).first()
     frequency = Frequency.query.filter_by(
-        phoneme_id=info['phoneme_id'], language_id=info['language_id']).first()
+        phoneme_id=phoneme.id, language_id=info['language_id']).first()
 
-    if Frequency.query.filter_by(phoneme_id=info['phoneme_id']).count() == 1:
+    if Frequency.query.filter_by(phoneme_id=phoneme.id).count() == 1:
         # Delete phoneme
         db.session.delete(phoneme)
 
     language.phonemes = [frequency for frequency in language.phonemes
-                         if frequency.phoneme_id != info['phoneme_id']]
+                         if frequency.phoneme_id != phoneme.id]
     db.session.delete(frequency)
 
 

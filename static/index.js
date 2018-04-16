@@ -678,7 +678,7 @@ document.querySelectorAll("#editLanguageSubmit p")[0].onclick = function() {
                 action: "phoneme_remove",
                 data: {
                     language_id: langInfo.id,
-                    phoneme_id: diffRemove[i]
+                    phoneme: diffRemove[i]
                 }
             })
         })
