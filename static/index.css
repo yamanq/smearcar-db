@@ -359,7 +359,7 @@ a {
 	background-color: rgba(0, 0, 0, 0.05);
 }
 
-#newLanguage, #editLanguage, #login {
+#newLanguage, #editLanguage, #login, #addUser {
 	position: absolute;
 	width: 100%;
 	height: 100%;
@@ -368,7 +368,7 @@ a {
 	background-color: rgba(0,0,0,0.4);
 }
 
-#newLanguage > div, #editLanguage > div, #login > div {
+#newLanguage > div, #editLanguage > div, #login > div, #addUser > div {
 	position: absolute;
 	width: 20%;
 	height: 60%;
@@ -383,11 +383,16 @@ a {
 	grid-template-rows: 6vh 1fr 1fr 1fr;
 }
 
-#loginUsername, #loginPassword {
+#addUser > div {
+	height: 40%;
+	grid-template-rows: 6vh 1fr 1fr 1fr 1fr;
+}
+
+#loginUsername, #loginPassword, #addUserUsername, #addUserPassword {
 	margin-left: 5%;
 }
 
-#login input {
+#login input, #addUser input {
 	border: 0;
 	background-color: rgba(0,0,0,0.1);
 	font-family: 'Saira Condensed',  sans-serif;
@@ -397,7 +402,7 @@ a {
 	width: 90%;
 }
 
-#newLanguageName, #editLanguageName, #loginUsername {
+#newLanguageName, #editLanguageName, #loginUsername, #addUserUsername {
 	grid-row: 2;
 }
 
@@ -413,8 +418,17 @@ a {
 	grid-row: 1;
 }
 
-#newLanguagePhonemes, #editLanguagePhonemes, #loginPassword {
+#newLanguagePhonemes, #editLanguagePhonemes, #loginPassword, #addUserAuthority {
 	grid-row: 3;
+}
+
+#addUserAuthority {
+	margin-left: 5%;
+	width: 90%;
+}
+
+#addUserPassword {
+	grid-row: 4;
 }
 
 #newLanguagePhonemes p, #editLanguagePhonemes p {
@@ -430,12 +444,16 @@ a {
 	font-size: 1.5vh;
 }
 
-#newLanguageSubmit, #editLanguageSubmit, #loginSubmit {
+#newLanguageSubmit, #editLanguageSubmit, #loginSubmit, #addUserSubmit {
 	display: grid;
 	grid-row: 4;
 }
 
-#newLanguageSubmit p, #editLanguageSubmit p, #loginSubmit p {
+#addUserSubmit {
+	grid-row: 5;
+}
+
+#newLanguageSubmit p, #editLanguageSubmit p, #loginSubmit p, #addUserSubmit p {
 	display: block;
 	font-size: 3vh;
 	margin: auto 10% auto;
@@ -450,7 +468,7 @@ a {
 	grid-template-rows: 100%;
 }
 
-#signIn {
+#signIn, #addUserButton {
 	display: grid;
 	grid-template-columns: 70% 20%;
 	grid-template-rows: 100%;
@@ -459,15 +477,15 @@ a {
 	cursor: pointer;
 }
 
-#signIn:hover {
+#signIn:hover, #addUserButton:hover {
 	background-color: rgba(255,255,255,0.1);
 }
 
-#signIn p, #signIn i {
+#signIn p, #signIn i, #addUserButton p, #addUserButton i {
 	margin: auto;
 	font-size: 180%;
 }
 
-#addData, #editData {
+#addData, #editData, #addUserButton {
 	display: none;
 }

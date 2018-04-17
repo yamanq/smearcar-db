@@ -21,6 +21,13 @@ var members = [
     "Kenneth Jao", "Yaman Qalieh", "Enrico Colon"
 ];
 
+var authorityLabels = {
+    0: "#0: Full access", 
+    1: "#1: Create updates", 
+    2: "#2: Edit values and add files", 
+    3: "#3: No access"
+};
+
 var dropOp = {
     //Insert correct
 };
@@ -105,10 +112,10 @@ function getData(updatePage) {
                 createDrop();
                 if(updatePage === "add") {
                     dropOpUpdate("langSelect");
-                    document.querySelectorAll(".dropdown[option='langSelect'] .opCont p[langid='"+(data.languages.length)+"']")[0].click();
+                    document.querySelectorAll(".dropdown[option='langSelect'] .opCont p[dropoption='"+(data.languages.length)+"']")[0].click();
                 } else if(updatePage === "edit") {
                     dropOpUpdate("langSelect");
-                    document.querySelectorAll(".dropdown[option='langSelect'] .opCont p[langid='"+(dropOpStore["langSelect"])+"']")[0].click();
+                    document.querySelectorAll(".dropdown[option='langSelect'] .opCont p[dropoption='"+(dropOpStore["langSelect"])+"']")[0].click();
                 }
             },
             function error(e) {
@@ -225,6 +232,10 @@ function generateDropOp() { // For options that change based on data.
             graph.style.opacity = "1";
         }, 300);
     }].concat(["Select language..."].concat(data.values.map(a=>a.id)));
+
+    dropOp["authority"] = [function() {
+
+    }].concat(["Select authority..."].concat(Object.keys(authorityLabels)));
 }
 
 function createDrop() {
@@ -236,7 +247,7 @@ function createDrop() {
         var div = document.createElement("div");
         div.className = "button";
         var p = document.createElement("p");
-        var op = dropButtons[i].getAttribute("option");
+        let op = dropButtons[i].getAttribute("option");
         p.appendChild(document.createTextNode(dropOp[op][1]));
         var ic = document.createElement("i");
         ic.className = "fa fa-angle-down";
@@ -246,22 +257,24 @@ function createDrop() {
         var div2 = document.createElement("div");
         div2.className = "opCont transition";
 
-        var p3 = document.createElement("p");
-        p3.className = "transition";
-        p3.id = "addData";
-        p3.onclick = function() { // Open add language.
-            modal("newLanguage", true);
-        };
-        p3.appendChild(document.createTextNode("Add language..."));
-        div2.appendChild(p3);
-
+        if(op === "langSelect") {
+            var p3 = document.createElement("p");
+            p3.className = "transition";
+            p3.id = "addData";
+            p3.onclick = function() { // Open add language.
+                modal("newLanguage", true);
+            };
+            p3.appendChild(document.createTextNode("Add language..."));
+            div2.appendChild(p3); 
+        }
+        
         for (var j = 2; j < dropOp[op].length; j++) {
             var p2 = document.createElement("p");
-            p2.setAttribute("langId", dropOp[op][j]);
+            p2.setAttribute("dropoption", dropOp[op][j]);
             p2.className = "transition";
             p2.onclick = function(e) {
                 e.stopPropagation();
-                dropOpStore[op] = this.getAttribute("langId");
+                dropOpStore[op] = this.getAttribute("dropoption");
                 dropOpUpdate(op);
                 let opCont = this.parentNode;
                 opCont.style.opacity = "0";
@@ -269,7 +282,8 @@ function createDrop() {
                     opCont.style.display = "none";
                 }, 300);
             };
-            p2.appendChild(document.createTextNode(language(dropOp[op][j]).name));
+            if(op === "langSelect") p2.appendChild(document.createTextNode(language(dropOp[op][j]).name));
+            if(op === "authority") p2.appendChild(document.createTextNode(authorityLabels[dropOp[op][j]]))
             div2.appendChild(p2);
         }
 
@@ -295,7 +309,9 @@ function createDrop() {
 
 function dropOpUpdate(op) {
     var dropdown = document.querySelectorAll(".dropdown[option=" + op + "] .button p")[0];
-    dropdown.textContent = language(dropOpStore[op]).name;
+    if(op === "langSelect") dropdown.textContent = language(dropOpStore[op]).name;
+    if(op === "authority") dropdown.textContent = authorityLabels[dropOpStore[op]];
+    console.log(op);
     (dropOp[op][0])();
 }
 
@@ -308,6 +324,7 @@ document.onclick = function(event) {
         }, 300);
     }
 };
+
 
 function homeCards() {
     // GET posts from server
@@ -416,11 +433,22 @@ function modal(id, open) {
     }   
 }
 
-var modals = ["newLanguage", "editLanguage", "login"];
+var modals = ["newLanguage", "editLanguage", "login", "addUser"];
 for(var i = 0; i < modals.length; i++) {
     let id = modals[i];
     document.getElementById(modals[i]).onclick = function(event) { modal(id, false); };
     document.querySelectorAll("#"+modals[i]+" > div")[0].onclick = function(event) { event.stopPropagation(); };
+}
+
+document.querySelectorAll("#addUser > div")[0].onclick = function(event) {
+    event.stopPropagation();
+    for (var i = 0; i < document.getElementsByClassName("dropdown").length; i++) {
+        var opCont = document.querySelectorAll(".dropdown .opCont")[i];
+        opCont.style.opacity = "0";
+        setTimeout(function() {
+            opCont.style.display = "none";
+        }, 300);
+    }
 }
 
 document.getElementById("editData").onclick = function() { // Open edit language.
@@ -436,9 +464,8 @@ document.getElementById("editData").onclick = function() { // Open edit language
     modal("editLanguage", true);
 };
 
-document.getElementById("signIn").onclick = function() {
-    modal("login", true);
-}
+document.getElementById("signIn").onclick = function() { modal("login", true); };
+document.getElementById("addUserButton").onclick = function() { modal("addUser", true); };
 
 document.querySelectorAll("#newLanguageSubmit p")[0].onclick = function() { // Function for adding a language.
     if(!submittable) return;
@@ -703,7 +730,10 @@ document.querySelectorAll("#editLanguageSubmit p")[0].onclick = function() { // 
 };
 
 document.querySelectorAll("#loginSubmit p")[0].onclick = function() {
-    var info = [document.querySelectorAll("#loginUsername input")[0], document.querySelectorAll("#loginPassword input")[0]];
+    var info = [
+        document.querySelectorAll("#loginUsername input")[0], 
+        document.querySelectorAll("#loginPassword input")[0]
+    ];
     if(info[0].value === "") {
         alert("Please enter in a username!");
         return;
@@ -716,10 +746,70 @@ document.querySelectorAll("#loginSubmit p")[0].onclick = function() {
     modal("login", false);
     document.getElementById("addData").style.display = "block";
     document.getElementById("editData").style.display = "grid";
+    document.getElementById("addUserButton").style.display = "grid";
+    document.getElementById("signIn").style.display = "none";
     setTimeout(function() {
         info[0].value = "";
         info[1].value = "";
     }, 300)
+};
+
+document.querySelectorAll("#addUserSubmit p")[0].onclick = function() {
+    var info = [
+        document.querySelectorAll("#addUserUsername input")[0], 
+        document.querySelectorAll("#addUserPassword input")[0],
+        dropOpStore["authority"]
+    ];
+    if(info[0].value === "") {
+        alert("Please enter in a username!");
+        return;
+    } else if(info[1].value === "") {
+        alert("Please enter in a password!");
+        return;
+    } else if(info[2] === "") {
+        alert("Please enter in an authority level!");
+        return;
+    }
+
+    console.log({
+            username: info[0].value,
+            authority: info[2],
+            password: info[1].value,
+            editor: loginInfo
+        });
+
+    this.innerText = "Processing...";
+    this.style.backgroundColor = "rgba(0,0,0,0.2)";
+
+     $.ajax({
+        url: serverURL + '/editors',
+        type: 'POST',
+        dataType: "json",
+        contentType: 'application/json;charset=UTF-8',
+        context: {counter: i},
+        data: JSON.stringify({
+            username: info[0].value,
+            authority: info[2],
+            password: info[1].value,
+            editor: loginInfo
+        })
+    })
+    .then(
+        function success(incoming) {
+            modal("addUser", false);
+            setTimeout(function() {
+                info[0].value = "";
+                info[1].value = "";
+                dropOpStore["authority"] = "";
+                document.querySelectorAll(".dropdown[option=authority] .button p")[0].textContent = dropOp["authority"][1];
+            }, 300);
+        },
+        function error(e) {
+            alert("There was an error adding a user.");
+            console.log(e);
+        }
+    );
+
 }
 
 /*function getTrelloCards() {
