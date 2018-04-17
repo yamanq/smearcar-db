@@ -226,11 +226,12 @@ def updates():
 def editors():
     if request.method == "POST":
         received = request.get_json()
-        doer = received['editor']
-        if Editor.query.filter_by(username=received[username].count()) == 0 and Editor.query.filter_by(username=doer['username'], password=doer['password']).count() == 1:
-            user = Editor(authority = received[authority],
-                          username = received[username],
-                          password = received[password])
+        if Editor.query.filter_by(username=received['username'].count()) == 0 and check_privelege(received['editor'], 0):
+            user = Editor(authority = received['authority'],
+                          username = received['username'],
+                          password = received['password'])
+            db.session.add(user)
+            db.session.commit()
             return user
         else:
             return "Bad Request"
