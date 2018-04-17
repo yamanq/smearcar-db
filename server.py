@@ -1,7 +1,7 @@
 from flask import Flask
 from flask import render_template, jsonify, request
 from flask_sqlalchemy import SQLAlchemy
-import time
+import datetime
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///data.db'
@@ -36,8 +36,8 @@ class Update(db.Model):
     author = db.Column(db.String(30), nullable=False)
     title = db.Column(db.String(100), nullable=False)
     content = db.Column(db.Text, nullable=False)
-    date = db.Column(db.BigInteger, nullable=False,
-                     default=int(time.time()*1000))
+    date = db.Column(db.String(50), nullable=False,
+                     default=datetime.datetime.now().strftime("%m/%d/%Y | %A, %B %d, %Y"))
 
 
 class Editor(db.Model):
