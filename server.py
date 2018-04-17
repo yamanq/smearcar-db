@@ -226,17 +226,17 @@ def updates():
 def editors():
     if request.method == "POST":
         received = request.get_json()
-        if Editor.query.filter_by(username=received['username'].count()) == 0 and check_privelege(received['editor'], 0):
+        if Editor.query.filter_by(username=received['username']).count() == 0 and check_privelege(received['editor'], 0):
             user = Editor(authority = received['authority'],
                           username = received['username'],
                           password = received['password'])
             db.session.add(user)
             db.session.commit()
-            return user
+            return "Success"
         else:
             return "Bad Request"
     else:
         return "Bad Request"
 
-if __name__ == "__main__":
-    app.run(host="0.0.0.0")
+# if __name__ == "__main__":
+#     app.run(host="0.0.0.0")
