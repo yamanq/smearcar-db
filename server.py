@@ -231,6 +231,8 @@ def editors():
             user = Editor(authority = received[authority],
                           username = received[username],
                           password = received[password])
+            db.session.add(user)
+            db.session.commit()
             return user
         else:
             return "Bad Request"
