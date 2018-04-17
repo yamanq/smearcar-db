@@ -49,7 +49,7 @@ function Rnd(item,fig) {
 function varType(variable) {
   var type = typeof variable;
   if(type === "object") {
-      return (variable.constructor === Array) ? "Array" : "Object";  
+      return (variable.constructor === Array) ? "Array" : "Object";
   } else {
     return type[0].toUpperCase() + type.slice(1);
   }
@@ -327,41 +327,36 @@ document.onclick = function(event) {
 
 
 function homeCards() {
-    // GET posts from server
-    var week = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-    var month = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-    var examplePost = [
-        {
-            author: "Kenneth Jao",
-            title: "Test Post!",
-            content: "This is test post! <a target='_blank' href='https://google.com'>Link</a> This link should work.<br> Newlines work.",
-            date: new Date(2018, 0, 26, 4, 51)
-        }
-    ];
-    var home = document.getElementById("home");
-    for(var i = 0; i < examplePost.length; i++) {
-        var div = document.createElement("div");
-        div.className = "card";
-        var h2 = document.createElement("h2");
-        h2.textContent = examplePost[i].title;
-        div.appendChild(h2);
-        var h3 = document.createElement("h3");
-        var dt = examplePost[i].date;
-        var smallDate = (function() {
-            var m = (dt.getMonth()+1).toString();
-            var d = (dt.getDay()+1).toString();
-            m = (m.length === 1) ? "0" + m : m;
-            d = (d.length === 1) ? "0" + d : d;
-            return m+"/"+d+"/"+dt.getFullYear().toString();
-        })();
-        var fullDate = week[dt.getDay()] + ", " + month[dt.getMonth()] + " " + dt.getDate().toString() + ", " + dt.getFullYear().toString();
-        h3.textContent = smallDate + " | " + fullDate;
-        div.appendChild(h3);
-        var p = document.createElement("p");
-        p.innerHTML = examplePost[i].content;
-        div.appendChild(p);
-        home.appendChild(div);
-    }
+    // TODO GET posts from server
+
+    $.ajax({
+        url: serverURL + '/updates',
+        type: 'GET'
+    })
+        .then(
+            function success(incoming) {
+                var postList = incoming;
+                var home = document.getElementById("home");
+                for(var i = 0; i < postList.length; i++) {
+                    var div = document.createElement("div");
+                    div.className = "card";
+                    var h2 = document.createElement("h2");
+                    h2.textContent = postList[i].title;
+                    div.appendChild(h2);
+                    var h3 = document.createElement("h3");
+                    h3.textContent = postList[i].date;
+                    div.appendChild(h3);
+                    var p = document.createElement("p");
+                    p.innerHTML = postList[i].content;
+                    div.appendChild(p);
+                    home.appendChild(div);
+                }
+            },
+            function error(e) {
+                console.log(e);
+            }
+        );
+
 }
 
 function chartOptions(graphData) {
