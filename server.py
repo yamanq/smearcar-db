@@ -36,8 +36,8 @@ class Update(db.Model):
     author = db.Column(db.String(30), nullable=False)
     title = db.Column(db.String(100), nullable=False)
     content = db.Column(db.Text, nullable=False)
-    date = db.Column(db.String(50), nullable=False,
-                     default=datetime.datetime.now().strftime("%m/%d/%Y | %A, %B %d, %Y"))
+    date = db.Column(db.DateTime, nullable=False,
+                     default=datetime.datetime.now())
 
 
 class Editor(db.Model):
@@ -214,11 +214,11 @@ def updates():
             update.content = received['content']
 
     db.session.commit()
-    return jsonify([{"author": update.name,
+    return jsonify([{"author": update.author,
                      "id": update.id,
                      "title": update.title,
                      "content": update.content,
-                     "date": update.date}
+                     "date": update.date.strftime("%m/%d/%Y | %A, %B %d, %Y")}
                     for update in Update.query.all()])
 
 # Manipulate Editor
