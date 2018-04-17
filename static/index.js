@@ -452,6 +452,9 @@ document.getElementById("newLanguage").onclick = function(event) { // Close add 
     setTimeout(function() {
        document.getElementById("newLanguage").style.display = "none";
     }, 300);
+};
+
+document.getElementById("editLanguage").onclick = function(event) { // Close add language.
     document.getElementById("editLanguage").style.opacity = "0";
     setTimeout(function() {
        document.getElementById("editLanguage").style.display = "none";
@@ -599,6 +602,14 @@ document.querySelectorAll("#editLanguageSubmit p")[0].onclick = function() {
         add: diffChange.length > 0,
         remove: diffRemove.length > 0
     };
+
+    if(!todo.name && !todo.add && !todo.remove) {
+        document.getElementById("editLanguage").style.opacity = "0";
+        setTimeout(function() {
+           document.getElementById("editLanguage").style.display = "none";
+        }, 300);
+        return;
+    }
 
     var error = false;
 
