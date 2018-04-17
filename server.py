@@ -40,22 +40,16 @@ class Update(db.Model):
                      default=int(time.time()*1000))
 
 
-def generate_key():
-    pass
-
-
 class Editor(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    description = db.Column(db.String(75), nullable=False)
     authority = db.Column(db.Integer, nullable=False, default=1)
     # 0: Full Access
-    # 1: Edit values and Add files
-    # 2: Edit values
+    # 1: Below + create Updates
+    # 2: Edit values and Add files
     # 3: No Access
 
-    token = db.Column(db.String(32), nullable=False, default=generate_key)
-    date = db.Column(db.BigInteger, nullable=False,
-                     default=int(time.time()*1000))
+    username = db.Column(db.String(32), nullable=False)
+    password = db.Column(db.String(32), nullable=False)
 
 
 def database():
@@ -71,6 +65,12 @@ def database():
             languageobject['phonemes'][frequency.phoneme.name] = frequency.value
         final['values'].append(languageobject)
     return final
+
+def check_privelege(doer, privelege):
+    if Editor.query.filter_by(username=doer['username'], password=doer['password']).first().authority <= privelege:
+        return True
+    else:
+        return False
 
 def phoneme_add(info):
     """Add or edit value associated with phoneme."""
@@ -162,28 +162,33 @@ def backend():
     #     return jsonify(database())
 
     # POST method appends input to database['values']
+
     if request.method == "POST":
         received = request.get_json()
-        language = Language(name=received['name'], source=received['source'])
-        db.session.add(language)
 
-        for phoneme, value in received['phonemes'].items():
-            with db.session.no_autoflush:
-                search = Phoneme.query.filter_by(name=phoneme).first()
-            if not search:
-                search = Phoneme(name=phoneme)
-                db.session.add(search)
-            link = Frequency(value=value, phoneme=search)
-            language.phonemes.append(link)
-            db.session.add(link)
-        db.session.commit()
+        if check_privelege(received['editor'], 2):
+            language = Language(name=received['name'], source=received['source'])
+            db.session.add(language)
+
+            for phoneme, value in received['phonemes'].items():
+                with db.session.no_autoflush:
+                    search = Phoneme.query.filter_by(name=phoneme).first()
+                if not search:
+                    search = Phoneme(name=phoneme)
+                    db.session.add(search)
+                link = Frequency(value=value, phoneme=search)
+                language.phonemes.append(link)
+                db.session.add(link)
+            db.session.commit()
         # return jsonify(database())
 
     # PATCH method inputs edited language and returns updated database
     elif request.method == "PATCH":
         received = request.get_json()
-        patch_functions[received['action']](received['data'])
-        db.session.commit()
+
+        if check_privelege(received['editor'], 2):
+            patch_functions[received['action']](received['data'])
+            db.session.commit()
 
     return jsonify(database())
 
@@ -194,17 +199,19 @@ def updates():
 
     if request.method == "POST":
         received = request.get_json()
-        update = Update(author=received['author'],
-                        title=received['title'],
-                        content=received['content'])
-        db.session.add(update)
+        if check_privelege(received['editor'], 1):
+            update = Update(author=received['author'],
+                            title=received['title'],
+                            content=received['content'])
+            db.session.add(update)
 
     elif request.method == "PATCH":
         received = request.get_json()
-        update = Update.query.filter_by(id=received['id']).first()
-        update.name = received['author']
-        update.title = received['title']
-        update.content = received['content']
+        if check_privelege(received['editor'], 1):
+            update = Update.query.filter_by(id=received['id']).first()
+            update.name = received['author']
+            update.title = received['title']
+            update.content = received['content']
 
     db.session.commit()
     return jsonify([{"author": update.name,
@@ -214,6 +221,21 @@ def updates():
                      "date": update.date}
                     for update in Update.query.all()])
 
+# Manipulate Editor
+@app.route("/editors", methods=["POST"])
+def editors():
+    if request.method == "POST":
+        received = request.get_json()
+        doer = received['editor']
+        if Editor.query.filter_by(username=received[username].count()) == 0 and Editor.query.filter_by(username=doer['username'], password=doer['password']).count() == 1:
+            user = Editor(authority = received[authority],
+                          username = received[username],
+                          password = received[password])
+            return user
+        else:
+            return "Bad Request"
+    else:
+        return "Bad Request"
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0")
