@@ -324,35 +324,36 @@ document.onclick = function(event) {
 
 
 function homeCards() {
-    // TODO GET posts from server
-
+    var home = document.getElementById("home");
+    while (home.firstChild) {
+        home.removeChild(home.firstChild);
+    }
     $.ajax({
         url: serverURL + '/updates',
         type: 'GET'
     })
-        .then(
-            function success(incoming) {
-                var postList = incoming;
-                var home = document.getElementById("home");
-                for(var i = 0; i < postList.length; i++) {
-                    var div = document.createElement("div");
-                    div.className = "card";
-                    var h2 = document.createElement("h2");
-                    h2.textContent = postList[i].title;
-                    div.appendChild(h2);
-                    var h3 = document.createElement("h3");
-                    h3.textContent = postList[i].date;
-                    div.appendChild(h3);
-                    var p = document.createElement("p");
-                    p.innerHTML = postList[i].content;
-                    div.appendChild(p);
-                    home.appendChild(div);
-                }
-            },
-            function error(e) {
-                console.log(e);
+    .then(
+        function success(incoming) {
+            var postList = incoming;
+            for(var i = postList.length - 1; i >= 0 ; i--) {
+                var div = document.createElement("div");
+                div.className = "card";
+                var h2 = document.createElement("h2");
+                h2.textContent = postList[i].title;
+                div.appendChild(h2);
+                var h3 = document.createElement("h3");
+                h3.textContent = postList[i].date;
+                div.appendChild(h3);
+                var p = document.createElement("p");
+                p.innerHTML = postList[i].content;
+                div.appendChild(p);
+                home.appendChild(div);
             }
-        );
+        },
+        function error(e) {
+            console.log(e);
+        }
+    );
 
 }
 
@@ -463,6 +464,7 @@ document.getElementById("editData").onclick = function() { // Open edit language
 
 document.getElementById("signIn").onclick = function() { modal("login", true); };
 document.getElementById("addUserButton").onclick = function() { modal("addUser", true); };
+document.getElementById("addUpdateButton").onclick = function() { modal("writePost", true); };
 
 document.querySelectorAll("#newLanguageSubmit p")[0].onclick = function() { // Function for adding a language.
     if(!submittable) return;
@@ -744,6 +746,7 @@ document.querySelectorAll("#loginSubmit p")[0].onclick = function() {
     document.getElementById("addData").style.display = "block";
     document.getElementById("editData").style.display = "grid";
     document.getElementById("addUserButton").style.display = "grid";
+    document.getElementById("addUpdateButton").style.display = "grid";
     document.getElementById("signIn").style.display = "none";
     setTimeout(function() {
         info[0].value = "";
@@ -777,12 +780,11 @@ document.querySelectorAll("#addUserSubmit p")[0].onclick = function() {
     this.style.backgroundColor = "rgba(0,0,0,0.2)";
     var p = this;
 
-     $.ajax({
+    $.ajax({
         url: serverURL + '/editors',
         type: 'POST',
         dataType: "json",
         contentType: 'application/json;charset=UTF-8',
-        context: {counter: i},
         data: JSON.stringify({
             username: info[0].value,
             authority: info[2],
@@ -810,7 +812,64 @@ document.querySelectorAll("#addUserSubmit p")[0].onclick = function() {
             }
         }
     );
-}
+};
+
+document.querySelectorAll("#writePostSubmit p")[0].onclick = function() {
+    if(!submittable) return;
+    submittable = false;
+    var info = [
+        document.querySelectorAll("#writePostTitle input")[0], 
+        document.querySelectorAll("#writePostAuthor input")[0],
+        document.querySelectorAll("#writePostText textarea")[0]
+    ];
+    if(info[0].value === "") {
+        alert("Please enter in a title!");
+        submittable = true;
+        return;
+    } else if(info[1].value === "") {
+        alert("Please enter in an author!");
+        submittable = true;
+        return;
+    } else if(info[2].value === "") {
+        alert("Please enter in a message!");
+        submittable = true;
+        return;
+    }
+    this.innerText = "Processing...";
+    this.style.backgroundColor = "rgba(0,0,0,0.2)";
+    var p = this;
+
+     $.ajax({
+        url: serverURL + '/updates',
+        type: 'POST',
+        dataType: "json",
+        contentType: 'application/json;charset=UTF-8',
+        data: JSON.stringify({
+            title: info[0].value,
+            author: info[1].value,
+            content: info[2].value,
+            editor: loginInfo
+        })
+    })
+    .then(
+        function success(incoming) {
+            modal("writePost", false);
+            homeCards();
+            setTimeout(function() {
+                info[0].value = "";
+                info[1].value = "";
+                info[2].value = "";
+                submittable = true;
+                p.innerText = "Submit!";
+                p.style.backgroundColor = "#FEFEFE";
+            }, 300);
+        },
+        function error(e) {
+            alert("There was an error adding a post.");
+            console.log(e);
+        }
+    );
+};
 
 /*function getTrelloCards() {
     Trello.authorize();
