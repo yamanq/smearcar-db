@@ -5,20 +5,15 @@ var data;
 var languageChart;
 var dataOpen = false;
 var submittable = true;
+var dropOp = {};
+var dropOpStore = {};
 var loginInfo = {};
-
-// var trelloInfo = {};
-
 
 var navi = [ // Array containing navigation items in form [Font-Awesome class name, Display Text, Onclick function].
     ["home", "Home", "home"],
     ["bar-chart", "Data Values", "dataValues1"],
     ["database", "Database and Files", "files"],
     ["info", "About", "about"]
-];
-
-var members = [
-    "Kenneth Jao", "Yaman Qalieh", "Enrico Colon"
 ];
 
 var authorityLabels = {
@@ -28,11 +23,137 @@ var authorityLabels = {
     3: "#3: No access"
 };
 
-var dropOp = {
-    //Insert correct
-};
 
-var dropOpStore = {};
+var modals = [
+    {
+        name: "Add Language",
+        modal: "newLanguage",
+        button: "addData",
+        structure: {
+            width: "20%",
+            form: [
+                {
+                    name: "Name",
+                    formType: "input"
+                },
+                {
+                    name: "Source",
+                    formType: "input",
+                    inputType: "file"
+                },
+                {
+                    name: "Phonemes",
+                    formType: "textarea",
+                    height: "25vh"
+                }
+            ]
+        }
+    },
+    {
+        name: "Edit Language",
+        modal: "editLanguage",
+        button: "editData",
+        buttonClick: function() {
+            var langInfo = language(dropOpStore["langSelect"]);
+            document.querySelectorAll("#editLanguageName input")[0].value = langInfo.name;
+            var k = Object.keys(langInfo.phonemes);
+            var v = Object.values(langInfo.phonemes);
+            var str = "";
+            for(var i = 0; i < k.length; i++) {
+                str += k[i] + " " + v[i] + ((i === k.length-1) ? "" : "\n");
+            }
+            document.querySelectorAll("#editLanguagePhonemes textarea")[0].value = str;
+            //modal("editLanguage", true);
+        },
+        structure: {
+            width: "20%",
+            form: [
+                {
+                    name: "Name",
+                    formType: "input"
+                },
+                {
+                    name: "Source",
+                    formType: "input",
+                    inputType: "file"
+                },
+                {
+                    name: "Phonemes",
+                    formType: "textarea",
+                    height: "25vh"
+                }
+            ]
+        }
+    },
+    {
+        name: "Login",
+        modal: "login",
+        button: "signIn",
+        structure: {
+            width: "20%",
+            form: [
+                {
+                    name: "Username",
+                    formType: "input"
+                },
+                {
+                    name: "Password",
+                    formType: "input",
+                    inputType: "password"
+                },
+            ]
+        }
+    },
+    {
+        name: "Add User",
+        modal: "addUser",
+        button: "addUserButton",
+        structure: {
+            width: "20%",
+            form: [
+                {
+                    name: "Username",
+                    formType: "input"
+                },
+                {
+                    name: "Authority",
+                    formType: "input",
+                    inputType: "number"
+                },
+                {
+                    name: "Password",
+                    formType: "input",
+                    inputType: "password"
+                }
+            ]
+        }
+    },
+    {
+        name: "Write Update",
+        modal: "writePost",
+        button: "addUpdateButton",
+        structure: {
+            width: "40%",
+            form: [
+                {
+                    name: "Title",
+                    formType: "input",
+                },
+                {
+                    name: "Author",
+                    formType: "input",
+                },
+                {
+                    name: "Message",
+                    formType: "textarea",
+                    height: "18vh"
+                }
+            ]
+        }
+    },
+];
+
+
 
 function Rnd(item,fig) {
   if(varType(item) === "Array") {
@@ -117,6 +238,7 @@ function getData(updatePage) {
                     dropOpUpdate("langSelect");
                     document.querySelectorAll(".dropdown[option='langSelect'] .opCont p[dropoption='"+(dropOpStore["langSelect"])+"']")[0].click();
                 }
+                generateModals();
             },
             function error(e) {
                 console.log(e);
@@ -258,9 +380,6 @@ function createDrop() {
             var p3 = document.createElement("p");
             p3.className = "transition";
             p3.id = "addData";
-            p3.onclick = function() { // Open add language.
-                modal("newLanguage", true);
-            };
             p3.appendChild(document.createTextNode("Add language..."));
             div2.appendChild(p3); 
         }
@@ -342,7 +461,7 @@ function homeCards() {
                 h2.textContent = postList[i].title;
                 div.appendChild(h2);
                 var h3 = document.createElement("h3");
-                h3.textContent = postList[i].date;
+                h3.textContent = postList[i].author + " - " + postList[i].date;
                 div.appendChild(h3);
                 var p = document.createElement("p");
                 p.innerHTML = postList[i].content;
@@ -426,19 +545,7 @@ function modal(id, open) {
     }   
 }
 
-var modals = ["newLanguage", "editLanguage", "login", "addUser"];
-for(var i = 0; i < modals.length; i++) {
-    let id = modals[i];
-    document.getElementById(modals[i]).onclick = function(event) { 
-        modal(id, false);
-        for(var j = 0; j < document.getElementsByTagName("input"); j++) document.getElementsByTagName("input")[j].value = "";
-        dropOpStore["authority"] = "";
-        document.querySelectorAll(".dropdown[option=authority] .button p")[0].textContent = dropOp["authority"][1];
-    };
-    document.querySelectorAll("#"+modals[i]+" > div")[0].onclick = function(event) { event.stopPropagation(); };
-}
-
-document.querySelectorAll("#addUser > div")[0].onclick = function(event) {
+/*document.querySelectorAll("#addUser > div")[0].onclick = function(event) {
     event.stopPropagation();
     for (var i = 0; i < document.getElementsByClassName("dropdown").length; i++) {
         var opCont = document.querySelectorAll(".dropdown .opCont")[i];
@@ -447,26 +554,84 @@ document.querySelectorAll("#addUser > div")[0].onclick = function(event) {
             opCont.style.display = "none";
         }, 300);
     }
+}*/
+
+
+function generateModals() {
+    while(document.getElementsByClassName("modal").length > 0) {
+        document.getElementsByTagName("body")[0].removeChild(document.getElementsByClassName("modal")[0]);
+    }
+    for(var i = 0; i < modals.length; i++) {
+        let eachModal = modals[i];
+        var overlay = document.createElement("div");
+        overlay.id = modals[i].modal;
+        overlay.className = "transition modal";
+
+        var modalCont = document.createElement("div");
+        modalCont.className = "card transition";
+        modalCont.style.position = "absolute";
+        modalCont.style.paddingBottom = "1vh";
+        modalCont.style.width = modals[i].structure.width;
+        var marg = 50-parseInt(modals[i].structure.width.replace("%",""))/2;
+        modalCont.style.margin = "5% " + marg + "% 0 " + marg+"%";
+        var h2 = document.createElement("h2");
+        h2.appendChild(document.createTextNode(modals[i].name));
+        h2.style.gridRow = "1";
+        modalCont.appendChild(h2);
+
+        var gridTemplate = "6vh ";
+        var form = modals[i].structure.form;
+        for(var j = 0; j < form.length; j++) {
+            gridTemplate += (form[j].formType === "input") ? "7vh " : "auto ";
+            var div = document.createElement("div");
+            div.id = modals[i].modal + form[j].name;
+            div.style.marginLeft = "5%";
+            div.style.gridRow = j+2;
+            var p = document.createElement("p");
+            p.appendChild(document.createTextNode(form[j].name + ":"));
+            var input = document.createElement(form[j].formType);
+            if(form[j].inputType) input.type = form[j].inputType;
+            if(form[j].height) input.style.height = form[j].height; 
+            
+            
+            div.appendChild(p);
+            div.appendChild(input);
+            modalCont.appendChild(div);
+        }
+        gridTemplate += "7vh";
+        modalCont.style.gridTemplateRows = gridTemplate;
+        modalCont.style.gridTemplateColumns = "100%";
+
+        var submit = document.createElement("div");
+        submit.id = modals[i].modal + "Submit";
+        submit.style.gridRow = form.length+2;
+        submit.style.display = "grid";
+        submit.onclick = function() {
+            (eachModal.submitClick)();
+        }
+        var p2 = document.createElement("p");
+        p2.className = "card modalSubmit"; // Refer to modalSubmit CSS to edit.
+        p2.appendChild(document.createTextNode("Submit!"));
+        submit.appendChild(p2);
+        modalCont.appendChild(submit);
+
+        overlay.appendChild(modalCont);
+        document.getElementsByTagName("body")[0].appendChild(overlay);
+        console.log(modals[i].button);
+        document.getElementById(modals[i].button).onclick = function() {
+            if(eachModal.buttonClick) (eachModal.buttonClick)();
+            modal(eachModal.modal, true);
+        }
+
+        overlay.onclick = function(event) {
+            if(this !== event.target) return;
+            for(var i = 0; i < document.getElementsByTagName("input").length; i++) document.getElementsByTagName("input")[i].value = "";
+            modal(eachModal.modal, false);
+        }
+    }
 }
 
-document.getElementById("editData").onclick = function() { // Open edit language.
-    var langInfo = language(dropOpStore["langSelect"]);
-    document.querySelectorAll("#editLanguageName input")[0].value = langInfo.name;
-    var k = Object.keys(langInfo.phonemes);
-    var v = Object.values(langInfo.phonemes);
-    var str = "";
-    for(var i = 0; i < k.length; i++) {
-        str += k[i] + " " + v[i] + ((i === k.length-1) ? "" : "\n");
-    }
-    document.querySelectorAll("#editLanguagePhonemes textarea")[0].value = str;
-    modal("editLanguage", true);
-};
-
-document.getElementById("signIn").onclick = function() { modal("login", true); };
-document.getElementById("addUserButton").onclick = function() { modal("addUser", true); };
-document.getElementById("addUpdateButton").onclick = function() { modal("writePost", true); };
-
-document.querySelectorAll("#newLanguageSubmit p")[0].onclick = function() { // Function for adding a language.
+modals[0].submitClick = function() { // submitClick for newLanguage.
     if(!submittable) return;
     submittable = false;
     var name = document.querySelectorAll("#newLanguageName input")[0].value;
@@ -493,16 +658,30 @@ document.querySelectorAll("#newLanguageSubmit p")[0].onclick = function() { // F
         }
         phonemes[info[i][0]] = num;
     }
+
+    var formData = new FormData();
+    var source = document.querySelectorAll("#newLanguageSource input")[0].files;
+    if(source.length === 0 || source[0].type) {
+        alert("Please give a source!");
+        submittable = true;
+        return;
+    }
+    formData.append("source", source[0]);
+    formData.append("name", name);
+    formData.append("phonemes", phonemes);
+    formData.append("editor", loginInfo);
+
     var newLanguage = {
         name: name,
-        source: null,
+        source: sourceData,
         phonemes: phonemes,
         editor: loginInfo
     };
 
-    this.innerText = "Processing...";
-    this.style.backgroundColor = "rgba(0,0,0,0.2)";
-    var p = this;
+    var p = document.querySelectorAll("#newLanguageSubmit p ")[0]
+    p.innerText = "Processing...";
+    p.style.backgroundColor = "rgba(0,0,0,0.2)";
+
     $.ajax({
         url: serverURL + '/server',
         type: 'POST',
@@ -530,7 +709,7 @@ document.querySelectorAll("#newLanguageSubmit p")[0].onclick = function() { // F
     );
 };
 
-document.querySelectorAll("#editLanguageSubmit p")[0].onclick = function() { // Function for submitting edits to language.
+modals[1].submitClick= function() { // submitClick for editLanguage.
     if(!submittable) return;
     var langInfo = language(dropOpStore["langSelect"]);
     submittable = false;
@@ -561,9 +740,9 @@ document.querySelectorAll("#editLanguageSubmit p")[0].onclick = function() { // 
     }
     console.log(newPhonemes);
 
-    this.innerText = "Processing...";
-    this.style.backgroundColor = "rgba(0,0,0,0.2)";
-    var p = this;
+    var p = document.querySelectorAll("#editLanguageSubmit p")[0]
+    p.innerText = "Processing...";
+    p.style.backgroundColor = "rgba(0,0,0,0.2)";
 
     var oldPhoneset = new Set(Object.keys(langInfo.phonemes));
     var newPhoneset = new Set(Object.keys(newPhonemes));
@@ -728,7 +907,7 @@ document.querySelectorAll("#editLanguageSubmit p")[0].onclick = function() { // 
     }
 };
 
-document.querySelectorAll("#loginSubmit p")[0].onclick = function() {
+modals[2].submitClick = function() { // submitClick for login.
     var info = [
         document.querySelectorAll("#loginUsername input")[0], 
         document.querySelectorAll("#loginPassword input")[0]
@@ -751,16 +930,16 @@ document.querySelectorAll("#loginSubmit p")[0].onclick = function() {
     setTimeout(function() {
         info[0].value = "";
         info[1].value = "";
-    }, 300)
+    }, 300);
 };
 
-document.querySelectorAll("#addUserSubmit p")[0].onclick = function() {
+modals[3].submitClick = function() {
     if(!submittable) return;
     submittable = false;
     var info = [
         document.querySelectorAll("#addUserUsername input")[0], 
         document.querySelectorAll("#addUserPassword input")[0],
-        parseInt(dropOpStore["authority"])
+        document.querySelectorAll("#addUserAuthority input")[0]
     ];
     if(info[0].value === "") {
         alert("Please enter in a username!");
@@ -776,9 +955,9 @@ document.querySelectorAll("#addUserSubmit p")[0].onclick = function() {
         return;
     }
 
-    this.innerText = "Processing...";
-    this.style.backgroundColor = "rgba(0,0,0,0.2)";
-    var p = this;
+    var p = document.querySelectorAll("#addUserSubmit p")[0]
+    p.innerText = "Processing...";
+    p.style.backgroundColor = "rgba(0,0,0,0.2)";
 
     $.ajax({
         url: serverURL + '/editors',
@@ -787,7 +966,7 @@ document.querySelectorAll("#addUserSubmit p")[0].onclick = function() {
         contentType: 'application/json;charset=UTF-8',
         data: JSON.stringify({
             username: info[0].value,
-            authority: info[2],
+            authority: parseInt(info[2]),
             password: info[1].value,
             editor: loginInfo
         })
@@ -814,13 +993,13 @@ document.querySelectorAll("#addUserSubmit p")[0].onclick = function() {
     );
 };
 
-document.querySelectorAll("#writePostSubmit p")[0].onclick = function() {
+modals[4].submitClick = function() {
     if(!submittable) return;
     submittable = false;
     var info = [
         document.querySelectorAll("#writePostTitle input")[0], 
         document.querySelectorAll("#writePostAuthor input")[0],
-        document.querySelectorAll("#writePostText textarea")[0]
+        document.querySelectorAll("#writePostMessage textarea")[0]
     ];
     if(info[0].value === "") {
         alert("Please enter in a title!");
@@ -835,11 +1014,12 @@ document.querySelectorAll("#writePostSubmit p")[0].onclick = function() {
         submittable = true;
         return;
     }
-    this.innerText = "Processing...";
-    this.style.backgroundColor = "rgba(0,0,0,0.2)";
-    var p = this;
 
-     $.ajax({
+    var p = document.querySelectorAll("#writePostSubmit p")[0]
+    p.innerText = "Processing...";
+    p.style.backgroundColor = "rgba(0,0,0,0.2)";
+
+    $.ajax({
         url: serverURL + '/updates',
         type: 'POST',
         dataType: "json",
@@ -871,35 +1051,7 @@ document.querySelectorAll("#writePostSubmit p")[0].onclick = function() {
     );
 };
 
-/*function getTrelloCards() {
-    Trello.authorize();
-    var cardArr, listArr, lists;
-    var cards = window.Trello.rest(
-        "GET", "boards/vm2c2IZd/cards",
-        function success() {
-            cardArr = JSON.parse(cards.responseText);
-            lists = window.Trello.rest(
-            "GET", "boards/vm2c2IZd/lists",
-            function success() {
-                listArr = JSON.parse(lists.responseText);
-                for(var i = 0; i < listArr.length; i++) {
-                    var arr = cardArr.filter(function(obj) {
-                        return obj.idList === listArr[i].id;
-                    }).map(a => a.name);
-                    trelloInfo[listArr[i].name] = arr;
-                }
-            },
-            function error(e) {
-                console.log(e);
-            });
-        },
-        function error(e) {
-            console.log(e);
-    });
-}*/
-
 getData();
 homeCards();
 createNav();
 updateNav(navSelect);
-
