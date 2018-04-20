@@ -124,21 +124,21 @@ def language_name_edit(info):
     language.name = info['language_name']
 
 
-def language_source_add(info):
-    """Add or replace a source"""
-    # info = {
-    #     language_id: language_id,
-    #     language_source = source
-    # }
-    language = Language.query.filter_by(id=info['language_id']).first()
-    language.source = info['language_source']
+# def language_source_add(info):
+#     """Add or replace a source"""
+#     # info = {
+#     #     language_id: language_id,
+#     #     language_source = source
+#     # }
+#     language = Language.query.filter_by(id=info['language_id']).first()
+#     language.source = info['language_source']
 
 
 patch_functions = {
     "phoneme_add": phoneme_add,  # Add and edit value
     "phoneme_remove": phoneme_remove,  # Remove association and/or phoneme
     "language_name_edit": language_name_edit,  # Change language name
-    "language_source_add": language_source_add  # Add/edit source
+    # "language_source_add": language_source_add  # Add/edit source
 }
 
 
@@ -149,12 +149,23 @@ def initial():
 
 
 # GET method for files
-@app.route("/server/<lang_id>")
+@app.route("/server/<lang_id>", methods=["GET"])
 def file_return(lang_id):
     return Language.query.filter_by(id=lang_id).first().source
 
+# POST files
+@app.route("/source", methods=["POST"])
+def source_add():
+    """Add or replace a source"""
+    if check_privelege(received['editor'], 2):
+        f = request.files['mytranscript']
+        f.save("files/" + request.form['lang_id'])
+        return "nice"
+    return "Error"
 
-# Place for client to communicate with the server
+
+
+# Add and Edit data
 @app.route("/server", methods=["GET", "POST", "PATCH"])
 def backend():
     # # GET method returns the latest database
