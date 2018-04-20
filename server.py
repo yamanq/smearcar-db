@@ -158,7 +158,7 @@ def file_return(lang_id):
 def source_add():
     """Add or replace a source"""
     if check_privelege(received['editor'], 2):
-        f = request.files['mytranscript']
+        f = request.files['file']
         f.save("files/" + request.form['lang_id'])
         return "nice"
     return "Error"
