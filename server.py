@@ -59,7 +59,7 @@ def database():
     for language in Language.query.order_by(Language.name).all():
         languageobject = {'id': language.id,
                           'name': language.name,
-                          'source': language.source,
+                          # 'source': language.source,
                           'phonemes': {}}
         for frequency in language.phonemes:
             languageobject['phonemes'][frequency.phoneme.name] = frequency.value
