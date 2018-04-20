@@ -1,1 +1,2 @@
 # smearcar-db
+Smearcar-db is an online database which compares languages and the relative frequencies of their component phonemes. This information can be referenced through the provided sources. The database can be downloaded for further analysis using the "Database and Files" tab. This website is licensed under the GNU GPLv3 license and its source can be found at [Github](https://github.com/yamanq/smearcar-db').
