@@ -22,7 +22,7 @@ class Frequency(db.Model):
 class Language(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(100), nullable=False)
-    source = db.Column(db.LargeBinary)
+    # source = db.Column(db.LargeBinary)
     phonemes = db.relationship('Frequency')
 
 
@@ -151,7 +151,10 @@ def initial():
 # GET method for files
 @app.route("/server/<lang_id>", methods=["GET"])
 def file_return(lang_id):
-    return Language.query.filter_by(id=lang_id).first().source
+    try:
+        return send_file('source/' + lang_id)
+    except Exception as e:
+        return str(e)
 
 # POST files
 @app.route("/source", methods=["POST"])
