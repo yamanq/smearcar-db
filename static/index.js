@@ -63,7 +63,6 @@ var modals = [
                 str += k[i] + " " + v[i] + ((i === k.length-1) ? "" : "\n");
             }
             document.querySelectorAll("#editLanguagePhonemes textarea")[0].value = str;
-            //modal("editLanguage", true);
         },
         structure: {
             width: "20%",
@@ -153,8 +152,6 @@ var modals = [
     },
 ];
 
-
-
 function Rnd(item,fig) {
   if(varType(item) === "Array") {
     var arr = [];
@@ -213,6 +210,7 @@ function updateMain(op) { // Updates the actual page.
 }
 
 function updateNav(op) { // Updates the sidebar navigation.
+    document.getElementById("headerTitle").textContent = navi.filter(function(val) { return val[2] === op })[0][1];
     var oldNav = document.querySelectorAll("[option=" + navSelect + "]")[0];
     var newNav = document.querySelectorAll("[option=" + op + "]")[0];
     oldNav.style.backgroundColor = "rgba(0,0,0,0)";
@@ -287,7 +285,7 @@ function generateDropOp() { // For options that change based on data.
             var p2 = document.createElement("p");
             var a = document.createElement("a");
             p2.appendChild(document.createTextNode("Source: "));
-            if(langInfo.source === null) {
+            if(langInfo.source === undefined) {
                 p2.appendChild(document.createTextNode("N/A"));
             } else if(langInfo.source.length > 0) {
                 a.href = langInfo.source;
@@ -1050,6 +1048,8 @@ modals[4].submitClick = function() {
         }
     );
 };
+
+
 
 getData();
 homeCards();

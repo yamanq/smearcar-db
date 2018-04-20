@@ -365,7 +365,7 @@ a {
 
 #header2 {
 	display:grid;
-	grid-template-columns: 80% 10% 10%;
+	grid-template-columns: 20% 60% 10% 10%;
 	grid-template-rows: 100%;
 }
 
@@ -373,13 +373,13 @@ a {
 	display: grid;
 	grid-template-columns: 70% 20%;
 	grid-template-rows: 100%;
-	grid-column: 3;
+	grid-column: 4;
 	grid-row: 1;
 	cursor: pointer;
 }
  
 #addUpdateButton {
-	grid-column: 2;
+	grid-column: 3;
 }
 
 #signIn:hover, #addUserButton:hover, #addUpdateButton:hover, #writePostButton:hover {
@@ -425,4 +425,11 @@ a {
 	width: 90%;
 	outline: none;
 	resize: none;
+}
+
+#headerTitle {
+	font-size: 200%;
+	font-weight: 300;
+	margin: auto 10% auto;
+	font-family: 'Saira Condensed', sans-serif;
 }
