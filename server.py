@@ -2,6 +2,7 @@ from flask import Flask
 from flask import render_template, jsonify, request
 from flask_sqlalchemy import SQLAlchemy
 import datetime
+import os
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///data.db'
@@ -160,10 +161,14 @@ def file_return(lang_id):
 @app.route("/source", methods=["POST"])
 def source_add():
     """Add or replace a source"""
-    if check_privelege(received['editor'], 2):
+    if check_privelege({
+            "username": request.form["username"],
+            "password": request.form["password"]
+        }, 2):
         f = request.files['file']
-        f.save("files/" + request.form['lang_id'])
+        f.save("files/"+request.form['lang_id'])
         return "nice"
+
     return "Error"
 
 
@@ -181,7 +186,7 @@ def backend():
         received = request.get_json()
 
         if check_privelege(received['editor'], 2):
-            language = Language(name=received['name'], source=received['source'])
+            language = Language(name=received['name'])
             db.session.add(language)
 
             for phoneme, value in received['phonemes'].items():

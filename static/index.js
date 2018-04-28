@@ -543,18 +543,6 @@ function modal(id, open) {
     }   
 }
 
-/*document.querySelectorAll("#addUser > div")[0].onclick = function(event) {
-    event.stopPropagation();
-    for (var i = 0; i < document.getElementsByClassName("dropdown").length; i++) {
-        var opCont = document.querySelectorAll(".dropdown .opCont")[i];
-        opCont.style.opacity = "0";
-        setTimeout(function() {
-            opCont.style.display = "none";
-        }, 300);
-    }
-}*/
-
-
 function generateModals() {
     while(document.getElementsByClassName("modal").length > 0) {
         document.getElementsByTagName("body")[0].removeChild(document.getElementsByClassName("modal")[0]);
@@ -591,7 +579,6 @@ function generateModals() {
             if(form[j].inputType) input.type = form[j].inputType;
             if(form[j].height) input.style.height = form[j].height; 
             
-            
             div.appendChild(p);
             div.appendChild(input);
             modalCont.appendChild(div);
@@ -615,7 +602,6 @@ function generateModals() {
 
         overlay.appendChild(modalCont);
         document.getElementsByTagName("body")[0].appendChild(overlay);
-        console.log(modals[i].button);
         document.getElementById(modals[i].button).onclick = function() {
             if(eachModal.buttonClick) (eachModal.buttonClick)();
             modal(eachModal.modal, true);
@@ -657,26 +643,20 @@ modals[0].submitClick = function() { // submitClick for newLanguage.
         phonemes[info[i][0]] = num;
     }
 
-    var formData = new FormData();
     var source = document.querySelectorAll("#newLanguageSource input")[0].files;
-    if(source.length === 0 || source[0].type) {
+    if(source.length === 0) {
         alert("Please give a source!");
         submittable = true;
         return;
     }
-    formData.append("source", source[0]);
-    formData.append("name", name);
-    formData.append("phonemes", phonemes);
-    formData.append("editor", loginInfo);
-
+   
     var newLanguage = {
         name: name,
-        source: sourceData,
         phonemes: phonemes,
         editor: loginInfo
     };
 
-    var p = document.querySelectorAll("#newLanguageSubmit p ")[0]
+    var p = document.querySelectorAll("#newLanguageSubmit p")[0]
     p.innerText = "Processing...";
     p.style.backgroundColor = "rgba(0,0,0,0.2)";
 
@@ -689,22 +669,40 @@ modals[0].submitClick = function() { // submitClick for newLanguage.
     })
     .then(
         function success(incoming) {
-            document.getElementById("newLanguage").style.opacity = "0";
-            setTimeout(function() {
-                document.getElementById("newLanguage").style.display = "none";
-                submittable = true;
-                p.innerText = "Submit!";
-                p.style.backgroundColor = "#FEFEFE";
-                document.querySelectorAll("#newLanguageName input")[0].value = "";
-                document.querySelectorAll("#newLanguagePhonemes textarea")[0].value = "";
-            }, 300);
-            getData("add");
+
         },
         function error(e) {
             alert("There was an error adding a language.");
             console.log(e);
         }
-    );
+    ).done(function(incoming) {
+        var formData = new FormData();
+        formData.append("file", source[0]);
+        formData.append("lang_id", data.values.length);
+        formData.append("username", newLanguage.editor.username);
+        formData.append("password", newLanguage.editor.password)
+
+        $.ajax({
+            url: serverURL + '/source',
+            type: 'POST',
+            data: formData,
+            contentType: false,
+            processData: false
+        }).then(
+            function success(incoming) {
+                document.getElementById("newLanguage").style.opacity = "0";
+                setTimeout(function() {
+                    document.getElementById("newLanguage").style.display = "none";
+                    submittable = true;
+                    p.innerText = "Submit!";
+                    p.style.backgroundColor = "#FEFEFE";
+                    document.querySelectorAll("#newLanguageName input")[0].value = "";
+                    document.querySelectorAll("#newLanguagePhonemes textarea")[0].value = "";
+                }, 300);
+                getData("add");
+            }
+        )
+    });
 };
 
 modals[1].submitClick= function() { // submitClick for editLanguage.
@@ -725,7 +723,7 @@ modals[1].submitClick= function() { // submitClick for editLanguage.
     }
     info = info.split("\n");
     var newPhonemes = {};
-    console.log(info);
+
     for(var i = 0; i < info.length; i++) {
         info[i] = info[i].split(/[ ,]+/);
         var num = parseFloat(info[i][1]);
@@ -736,11 +734,9 @@ modals[1].submitClick= function() { // submitClick for editLanguage.
         }
         newPhonemes[info[i][0]] = num;
     }
-    console.log(newPhonemes);
 
-    var p = document.querySelectorAll("#editLanguageSubmit p")[0]
-    p.innerText = "Processing...";
-    p.style.backgroundColor = "rgba(0,0,0,0.2)";
+
+    var source = document.querySelectorAll("#editLanguageSource input")[0].files;
 
     var oldPhoneset = new Set(Object.keys(langInfo.phonemes));
     var newPhoneset = new Set(Object.keys(newPhonemes));
@@ -749,8 +745,6 @@ modals[1].submitClick= function() { // submitClick for editLanguage.
     var union = [...newPhoneset].filter(x=>oldPhoneset.has(x));
 
     for(var i = 0; i < union.length; i++) {
-        console.log(langInfo.phonemes[union[i]]);
-        console.log(newPhonemes[union[i]]);
         if(newPhonemes[union[i]] === undefined) {
             diffRemove.push(union[i]);
         } else if(langInfo.phonemes[union[i]] !== newPhonemes[union[i]]) {
@@ -763,13 +757,19 @@ modals[1].submitClick= function() { // submitClick for editLanguage.
     var todo = {
         name: name !== langInfo.name,
         add: diffChange.length > 0,
-        remove: diffRemove.length > 0
+        remove: diffRemove.length > 0,
+        source: source.length !== 0
     };
+    console.log(todo);
 
-    if(!todo.name && !todo.add && !todo.remove) {
+    if(!todo.name && !todo.add && !todo.remove && !todo.source) {
         modal("editLanguage", false);
         return;
     }
+
+    var p = document.querySelectorAll("#editLanguageSubmit p")[0]
+    p.innerText = "Processing...";
+    p.style.backgroundColor = "rgba(0,0,0,0.2)";
 
     var error = false;
 
@@ -832,7 +832,7 @@ modals[1].submitClick= function() { // submitClick for editLanguage.
         })
         .then(
             function success(incoming) {
-                if(todo.add && !todo.remove && this.counter === diffChange.length-1) {
+                if(todo.add && !todo.remove && !todo.source && this.counter === diffChange.length-1) {
                     document.getElementById("editLanguage").style.opacity = "0";
                     setTimeout(function() {
                         document.getElementById("editLanguage").style.display = "none";
@@ -856,14 +856,6 @@ modals[1].submitClick= function() { // submitClick for editLanguage.
 
     if(error) return;
 
-    console.log({
-                action: "phoneme_remove",
-                data: {
-                    language_id: langInfo.id,
-                    phoneme_id: diffRemove[i]
-                }
-    });
-
     for(var i = 0; i < diffRemove.length; i++) { // Ajax requests for removing phoneme values.
         $.ajax({
             url: serverURL + '/server',
@@ -882,7 +874,7 @@ modals[1].submitClick= function() { // submitClick for editLanguage.
         })
         .then(
             function success(incoming) {
-                if(this.counter === diffRemove.length-1) {
+                if(todo.remove && !todo.source && this.counter === diffRemove.length-1) {
                     document.getElementById("editLanguage").style.opacity = "0";
                     setTimeout(function() {
                         document.getElementById("editLanguage").style.display = "none";
@@ -902,6 +894,35 @@ modals[1].submitClick= function() { // submitClick for editLanguage.
                 console.log(e);
             }
         );
+    }
+
+    if(error) return;
+    if(todo.source) {
+        var formData = new FormData();
+        formData.append("file", source[0]);
+        formData.append("lang_id", data.values.length);
+        formData.append("username", loginInfo.username);
+        formData.append("password", loginInfo.password)
+        $.ajax({
+            url: serverURL + '/source',
+            type: 'POST',
+            data: formData,
+            contentType: false,
+            processData: false
+        }).then(
+            function success(incoming) {
+                document.getElementById("newLanguage").style.opacity = "0";
+                setTimeout(function() {
+                    document.getElementById("newLanguage").style.display = "none";
+                    submittable = true;
+                    p.innerText = "Submit!";
+                    p.style.backgroundColor = "#FEFEFE";
+                    document.querySelectorAll("#newLanguageName input")[0].value = "";
+                    document.querySelectorAll("#newLanguagePhonemes textarea")[0].value = "";
+                }, 300);
+                getData("edit");
+            }
+        )
     }
 };
 
