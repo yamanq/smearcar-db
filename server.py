@@ -82,13 +82,14 @@ def phoneme_add(info):
     # }
     phoneme = Phoneme.query.filter_by(name=info['phoneme']).first()
     language = Language.query.filter_by(id=info['language_id']).first()
-    if phoneme:
-        link = Frequency.query.filter_by(
-            language_id=language.id,
-            phoneme_id=phoneme.id).first()
+    link = Frequency.query.filter_by(
+        language_id=language.id,
+        phoneme_id=phoneme.id).first()
+    if phoneme and link:
         link.value = info['value']
     else:
-        phoneme = Phoneme(name=info['phoneme'])
+        if not phoneme:
+            phoneme = Phoneme(name=info['phoneme'])
         link = Frequency(value=info['value'])
         link.phoneme = phoneme
         language.phonemes.append(link)
