@@ -154,7 +154,7 @@ def initial():
 # GET method for files
 @app.route("/server/<lang_id>", methods=["GET"])
 def file_return(lang_id):
-    extensions = dict(x.split(".") for x in os.listdir("F:/Programming Projects/SmearcarDB/files"))
+    extensions = dict(x.split(".") for x in os.listdir("files/"))
     try:
         return send_file('files/' + lang_id+"."+extensions[str(lang_id)])
     except Exception as e:
