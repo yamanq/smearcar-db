@@ -900,7 +900,7 @@ modals[1].submitClick= function() { // submitClick for editLanguage.
     if(todo.source) {
         var formData = new FormData();
         formData.append("file", source[0]);
-        formData.append("lang_id", data.values.length);
+        formData.append("lang_id", langInfo.id);
         formData.append("username", loginInfo.username);
         formData.append("password", loginInfo.password)
         $.ajax({
