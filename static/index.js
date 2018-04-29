@@ -282,18 +282,11 @@ function generateDropOp() { // For options that change based on data.
             while (info.firstChild) {
                 info.removeChild(info.firstChild);
             }
-            var p2 = document.createElement("p");
             var a = document.createElement("a");
-            p2.appendChild(document.createTextNode("Source: "));
-            if(langInfo.source === undefined) {
-                p2.appendChild(document.createTextNode("N/A"));
-            } else if(langInfo.source.length > 0) {
-                a.href = langInfo.source;
-                srcText = (langInfo.source.length > 60) ? langInfo.source.substring(0, 57) + "..." : langInfo.source;
-                a.appendChild(document.createTextNode(srcText));
-                p2.appendChild(a);
-            }
-            info.appendChild(p2);
+            a.appendChild(document.createTextNode("Source"));
+            a.href = serverURL + "/server/" + langInfo.id;
+            a.setAttribute("target", "_blank");
+            info.appendChild(a);
 
             // Generate data box material.
 
