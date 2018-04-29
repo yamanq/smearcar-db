@@ -11,7 +11,7 @@ app.config.update(
     TEMPLATES_AUTO_RELOAD=True
 )
 db = SQLAlchemy(app)
-
+working_dir = os.path.dirname(__file__)
 
 class Frequency(db.Model):
     language_id = db.Column(db.Integer, db.ForeignKey('language.id'), primary_key=True)
@@ -166,7 +166,10 @@ def source_add():
             "password": request.form["password"]
         }, 2):
         f = request.files['file']
-        f.save("files/"+request.form['lang_id'])
+        write_path = os.path.join(working_dir, "files", request.form['lang_id'])
+        # with open(write_path, 'w') as a:
+        #     a.write()
+        f.save(write_path)
         return "nice"
 
     return "Error"
