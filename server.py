@@ -154,8 +154,9 @@ def initial():
 # GET method for files
 @app.route("/server/<lang_id>", methods=["GET"])
 def file_return(lang_id):
+    extensions = dict(x.split(".") for x in os.listdir("F:/Programming Projects/SmearcarDB/files"))
     try:
-        return send_file('files/' + lang_id)
+        return send_file('files/' + lang_id+"."+extensions[str(lang_id)])
     except Exception as e:
         return str(e)
 
@@ -168,7 +169,7 @@ def source_add():
             "password": request.form["password"]
         }, 2):
         f = request.files['file']
-        write_path = os.path.join(working_dir, "files", request.form['lang_id'])
+        write_path = os.path.join(working_dir, "files", request.form['lang_id']+"."+f.filename.split(".")[-1])
         # with open(write_path, 'w') as a:
         #     a.write()
         f.save(write_path)
