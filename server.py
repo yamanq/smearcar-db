@@ -1,6 +1,7 @@
 from flask import Flask
 from flask import render_template, jsonify, request
 from flask_sqlalchemy import SQLAlchemy
+from flask import send_file
 import datetime
 import os
 
@@ -154,7 +155,7 @@ def initial():
 @app.route("/server/<lang_id>", methods=["GET"])
 def file_return(lang_id):
     try:
-        return send_file('source/' + lang_id)
+        return send_file('files/' + lang_id)
     except Exception as e:
         return str(e)
 
