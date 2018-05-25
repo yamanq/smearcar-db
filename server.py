@@ -1,6 +1,11 @@
 from flask import Flask
 from flask import render_template, jsonify, request
 from flask_sqlalchemy import SQLAlchemy
+from numpy.polynomial.polynomial import polyfit
+from numpy import corrcoef
+import numpy as np
+import tkinter
+import matplotlib.pyplot as plt
 from flask import send_file
 import datetime
 import os
@@ -41,7 +46,6 @@ class Update(db.Model):
     date = db.Column(db.DateTime, nullable=False,
                      default=datetime.datetime.now())
 
-
 class Editor(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     authority = db.Column(db.Integer, nullable=False, default=1)
@@ -49,10 +53,76 @@ class Editor(db.Model):
     # 1: Below + create Updates
     # 2: Edit values and Add files
     # 3: No Access
-
     username = db.Column(db.String(32), nullable=False)
     password = db.Column(db.String(32), nullable=False)
 
+def rand_jitter(arr):
+    stdev = .01*(max(arr)-min(arr))
+    return arr + np.random.randn(len(arr)) * stdev
+
+def uniqueness():
+    x = []
+    y = []
+    languages = Language.query.all()
+    for phoneme in Phoneme.query.all():
+        frequencies = Frequency.query.filter_by(phoneme_id=phoneme.id).all()
+        values = [x.value for x in frequencies]
+        x.append(len(frequencies) / len(languages))
+        y.append(sum(values) / len(frequencies))
+    print(corrcoef(x, y))
+    b, m = polyfit(x, y, 1)
+    plt.scatter(rand_jitter(x), y, s=7)
+    bestfit = [b + m * number for number in x]
+    plt.plot(x, bestfit, '-')
+    plt.xlabel("Phoneme Presence in Studied Languages")
+    plt.ylabel("Average Frequency / %")
+    plt.title("Figure 1")
+    plt.show()
+
+def phoneme_rank(scatter=False, detail=1000, textOutput=False, title="Figure 2"):
+    speakers = {
+        'Spanish (Castillian)': 46.4,
+        'English (American)': 308.9,
+        'Spanish (American)': 435.7,
+        'Japanese': 128,
+        'German': 76,
+        'Arabic': 315,
+        'Mandarin': 909,
+        'Portuguese (Brazilian)': 194,
+        'French': 76.8,
+        'Hindi': 260,
+        'Polish': 40.3,
+        'Samoan': 0.40742,
+        'Kaiwa': 0.0021,
+        'Bengali': 243,
+        'Swedish': 12.8,
+        'Malay': 60.7,
+        'Italian': 64.8
+    }
+    total = sum(list(speakers.values()))
+    calculation = sorted([(phoneme.name, sum([frequency.value * speakers[Language.query.filter_by(id=frequency.language_id).first().name] / total for frequency in Frequency.query.filter_by(phoneme_id=phoneme.id).all()])) for phoneme in Phoneme.query.limit(detail).all()], key=lambda x:-x[1])
+    labels, data = zip(*calculation)
+
+    if textOutput:
+        return labels
+
+    if scatter:
+        plt.yscale("log")
+        plt.plot(range(len(data)), data)
+    else:
+        plt.bar(range(len(data)), data)
+
+    plt.xlabel("Phoneme Rank")
+    plt.ylabel("Frequency weighted by Number of Speakers / %")
+    plt.title(title)
+    plt.show()
+
+def phoible_compare():
+    # lang_id = Language.query.filter_by(name=lang).first().id
+    with open("phoible", "r") as f:
+        phoible = f.read().splitlines()
+    phonemes = [phoneme.name for phoneme in Phoneme.query.all()]
+    return [x for x in phoible if x in phonemes]
 
 def database():
     final = {'values': []}
@@ -83,18 +153,19 @@ def phoneme_add(info):
     # }
     phoneme = Phoneme.query.filter_by(name=info['phoneme']).first()
     language = Language.query.filter_by(id=info['language_id']).first()
+    if not phoneme:
+        phoneme = Phoneme(name=info['phoneme'])
+        db.session.add(phoneme)
     link = Frequency.query.filter_by(
         language_id=language.id,
         phoneme_id=phoneme.id).first()
-    if phoneme and link:
-        link.value = info['value']
-    else:
-        if not phoneme:
-            phoneme = Phoneme(name=info['phoneme'])
+    if not link:
         link = Frequency(value=info['value'])
         link.phoneme = phoneme
         language.phonemes.append(link)
-        db.session.add_all([phoneme, link])
+        db.session.add(link)
+    else:
+        link.value = info['value']
 
 
 def phoneme_remove(info):
