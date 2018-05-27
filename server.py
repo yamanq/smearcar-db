@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 from flask import send_file
 import datetime
 import os
+from scipy import stats
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///data.db'
@@ -60,7 +61,7 @@ def rand_jitter(arr):
     stdev = .01*(max(arr)-min(arr))
     return arr + np.random.randn(len(arr)) * stdev
 
-def uniqueness():
+def uniqueness(title="Figure 1"):
     x = []
     y = []
     languages = Language.query.all()
@@ -76,7 +77,7 @@ def uniqueness():
     plt.plot(x, bestfit, '-')
     plt.xlabel("Phoneme Presence in Studied Languages")
     plt.ylabel("Average Frequency / %")
-    plt.title("Figure 1")
+    plt.title(title)
     plt.show()
 
 def phoneme_rank(scatter=False, detail=1000, textOutput=False, title="Figure 2"):
@@ -123,10 +124,20 @@ def phoible_compare():
     phonemes = [phoneme.name for phoneme in Phoneme.query.all()]
     return [x for x in phoible if x in phonemes]
 
-def rank_compare():
+def rank_compare(textOutput=True, title="Rank Comparison"):
     phoible = phoible_compare()
     original = phoneme_rank(textOutput=True)
-
+    phoible_ranks = list(range(len(phoible)+1))[1:]
+    original_ranks = [original.index(phoneme) + 1 for phoneme in phoible]
+    if textOutput:
+        return {"kendall": stats.kendalltau(phoible_ranks, original_ranks),
+                "spearman": stats.spearmanr(phoible_ranks, original_ranks),
+                "wilcoxon": stats.wilcoxon(phoible_ranks, original_ranks, zero_method="pratt")}
+    plt.scatter(phoible_ranks, original_ranks)
+    plt.xlabel("Phoible Rank")
+    plt.ylabel("Weighted Rank")
+    plt.title(title)
+    plt.show()
 
 
 def database():
