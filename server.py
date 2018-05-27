@@ -100,9 +100,8 @@ def phoneme_rank(scatter=False, detail=1000, textOutput=False, title="Figure 2")
         'Italian': 64.8
     }
     total = sum(list(speakers.values()))
-    calculation = sorted([(phoneme.name, sum([frequency.value * speakers[Language.query.filter_by(id=frequency.language_id).first().name] / total for frequency in Frequency.query.filter_by(phoneme_id=phoneme.id).all()])) for phoneme in Phoneme.query.limit(detail).all()], key=lambda x:-x[1])
+    calculation = sorted([(phoneme.name, sum([frequency.value * speakers[Language.query.filter_by(id=frequency.language_id).first().name] / (total * len(Language.query.filter_by(name=Language.query.filter_by(id=frequency.language_id).first().name).all()) ) for frequency in Frequency.query.filter_by(phoneme_id=phoneme.id).all()])) for phoneme in Phoneme.query.limit(detail).all()], key=lambda x:-x[1])
     labels, data = zip(*calculation)
-
     if textOutput:
         return labels
 
@@ -123,6 +122,12 @@ def phoible_compare():
         phoible = f.read().splitlines()
     phonemes = [phoneme.name for phoneme in Phoneme.query.all()]
     return [x for x in phoible if x in phonemes]
+
+def rank_compare():
+    phoible = phoible_compare()
+    original = phoneme_rank(textOutput=True)
+
+
 
 def database():
     final = {'values': []}
