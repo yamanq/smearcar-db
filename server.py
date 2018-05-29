@@ -100,7 +100,7 @@ def phoneme_rank(scatter=False, detail=1000, textOutput=False, title="Figure 2")
         'Malay': 60.7,
         'Italian': 64.8
     }
-    total = sum(list(speakers.values()))
+    total = sum(speakers.values())
     calculation = sorted([(phoneme.name, sum([frequency.value * speakers[Language.query.filter_by(id=frequency.language_id).first().name] / (total * len(Language.query.filter_by(name=Language.query.filter_by(id=frequency.language_id).first().name).all()) ) for frequency in Frequency.query.filter_by(phoneme_id=phoneme.id).all()])) for phoneme in Phoneme.query.limit(detail).all()], key=lambda x:-x[1])
     labels, data = zip(*calculation)
     if textOutput:
