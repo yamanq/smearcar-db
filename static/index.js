@@ -5,6 +5,7 @@ var data;
 var languageChart;
 var dataOpen = false;
 var submittable = true;
+var flipMode = "dataValues1";
 var dropOp = {};
 var dropOpStore = {};
 var loginInfo = {};
@@ -263,9 +264,28 @@ function phoneme(p) {
     });
 }
 
-document.getElementById("flipMode").onclick = function() {
-    dropOpStore["flipMode"] = (dropOpStore["flipMode"] === "language") ? "phoneme" : "language";
+document.getElementById("flipMode1").onclick = function() {
+    document.getElementById(flipMode).style.opacity = "0";
+    setTimeout(function() {
+        document.getElementById(flipMode).style.display = "none";
+        flipMode  = (flipMode === "dataValues1") ? "dataValues2" : "dataValues1";
+        document.getElementById(flipMode).style.display = "block";
+        setTimeout(function() {
+            document.getElementById(flipMode).style.opacity = "1";
+        }, 30);
+    }, 300);
+};
 
+document.getElementById("flipMode2").onclick = function() {
+    document.getElementById(flipMode).style.opacity = "0";
+    setTimeout(function() {
+        document.getElementById(flipMode).style.display = "none";
+        flipMode  = (flipMode === "dataValues1") ? "dataValues2" : "dataValues1";
+        document.getElementById(flipMode).style.display = "block";
+        setTimeout(function() {
+            document.getElementById(flipMode).style.opacity = "1";
+        }, 30);
+    }, 300);
 }
 
 function generateDropOp() { // For options that change based on data.
@@ -289,7 +309,6 @@ function generateDropOp() { // For options that change based on data.
             info.appendChild(a);
 
             // Generate data box material.
-
             var phonemes = Object.keys(langInfo.phonemes).sort(Intl.Collator().compare);
 
             while (dataBox.firstChild) {
@@ -343,9 +362,78 @@ function generateDropOp() { // For options that change based on data.
         }, 300);
     }].concat(["Select language..."].concat(data.values.map(a=>a.id)));
 
-    dropOp["authority"] = [function() {
+    dropOp["phonemeSelect"] = [function() { // Function that occurs when change language.
+        // Generate info box material.
+        var langInfo = phoneme(dropOpStore["phonemeSelect"]);
+        var info = document.getElementById("phonemeInfoCont");
+        var dataBox = document.getElementById("dataTableCont2");
+        var graph = document.querySelectorAll("#phonemeGraph > canvas")[0];
+        info.style.opacity = "0";
+        dataBox.style.opacity = "0";
+        graph.style.opacity = "0";
+        setTimeout(function() {
+            while (info.firstChild) {
+                info.removeChild(info.firstChild);
+            }
+            var a = document.createElement("a");
+            a.appendChild(document.createTextNode("Sound"));
+            a.href = "https://en.wikipedia.org"; // replace with wikipedia
+            a.setAttribute("target", "_blank");
+            info.appendChild(a);
 
-    }].concat(["Select authority..."].concat(Object.keys(authorityLabels)));
+            // Generate data box material.
+
+            while (dataBox.firstChild) {
+                dataBox.removeChild(dataBox.firstChild);
+            }
+            dataBox.style.gridTemplateColumns = "repeat("+Math.ceil(langInfo.length/6).toString() + ", 1fr)";
+            for(var i = 0; i < 9; i++) dataBox.appendChild(document.createElement("div")); // Extra divs will be filled if necessary.
+            for(i = 0; i < langInfo.length; i++) {
+                var tableNum = Math.floor(i/6);
+                var row = i+2-tableNum*7;
+                var p1 = document.createElement("p");
+                var p2 = document.createElement("p");
+                p1.style.textAlign = "right";
+                p2.style.textAlign = "left";
+                p1.style.borderRight = "1px solid #D5D5D5";
+                if(i%6 === 0) {
+                    var pT1 = document.createElement("p");
+                    var pT2 = document.createElement("p");
+                    pT1.style.textAlign = "right";
+                    pT2.style.textAlign = "left";
+                    pT1.style.borderRight = "1px solid #D5D5D5";
+                    pT1.style.borderBottom = "1px solid #D5D5D5";
+                    pT2.style.borderBottom = "1px solid #D5D5D5";
+                    pT1.appendChild(document.createTextNode("Language"));
+                    pT2.appendChild(document.createTextNode("Percent"));
+                    dataBox.children[tableNum].appendChild(pT1);
+                    dataBox.children[tableNum].appendChild(pT2);
+                }
+                p1.appendChild(document.createTextNode(Object.keys(langInfo[i])));
+                p2.appendChild(document.createTextNode(Rnd(langInfo[i][Object.keys(langInfo[i])], 2)));
+                dataBox.children[tableNum].appendChild(p1);
+                dataBox.children[tableNum].appendChild(p2);
+            }
+            var graphData = langInfo.map(function(a) { return Object.entries(a)[0]; }).sort(function(a,b) {
+                return b[1] - a[1];
+            });
+            graphData = [graphData.map(function(a,b) {
+                return a[0];
+            }), graphData.map(function(a,b) {
+                return a[1];
+            })];
+            // Generate graphs.
+            var ctx = graph.getContext("2d");
+            try {
+                languageChart.destroy();
+            } catch(err) {}
+            languageChart = new Chart(ctx, chartOptions(graphData));
+            info.style.opacity = "1";
+            dataBox.style.opacity = "1";
+            graph.style.opacity = "1";
+        }, 300);
+    }].concat(["Select phoneme..."].concat(data.phonemes.sort()));
+
 }
 
 function createDrop() {
@@ -390,7 +478,7 @@ function createDrop() {
                 }, 300);
             };
             if(op === "langSelect") p2.appendChild(document.createTextNode(language(dropOp[op][j]).name));
-            if(op === "authority") p2.appendChild(document.createTextNode(authorityLabels[dropOp[op][j]]))
+            if(op === "phonemeSelect") p2.appendChild(document.createTextNode(dropOp[op][j]));
             div2.appendChild(p2);
         }
 
@@ -418,7 +506,6 @@ function dropOpUpdate(op) {
     var dropdown = document.querySelectorAll(".dropdown[option=" + op + "] .button p")[0];
     if(op === "langSelect") dropdown.textContent = language(dropOpStore[op]).name;
     if(op === "authority") dropdown.textContent = authorityLabels[dropOpStore[op]];
-    console.log(op);
     (dropOp[op][0])();
 }
 
