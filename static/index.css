@@ -437,3 +437,100 @@ a {
 	margin: auto 3% auto;
 	font-family: 'Saira Condensed', sans-serif;
 }
+
+#directory p {
+	font-size: 150%;
+	padding: 1.5vh 2vh 1.5vh 2vh;
+}
+
+#directoryHeader {
+	height: 10%;
+	display: grid;
+	grid-template-columns: 70% 15% 10% 5%;
+	grid-template-rows: 100%;
+	color: black;
+	background-color: white;
+}
+
+#directoryHeader p {
+	display: grid;
+	cursor: pointer;
+	grid-template-columns: 19fr 1fr;
+	grid-template-rows: 100%;
+	padding: 2.3vh;
+}
+
+#directoryHeader p:hover {
+	background-color: rgba(0,0,0,0.1);
+}
+
+#directoryHeader i {
+	margin: auto;
+	display: none;
+	opacity: 0;
+}
+
+#directoryCont {
+	overflow-y: auto;
+}
+
+.item {
+	display: grid;
+	cursor: pointer;
+	grid-template-columns: 70% 15% 10% 5%;
+	grid-template-rows: 100%;
+	margin: 1vh 0 1vh 0;
+}
+
+.item p {
+	pointer-events: none;
+}
+
+.item a {
+	grid-column: 4;
+	grid-row: 2;
+	margin: auto;
+	font-size: 140%;
+}
+
+.item a:hover {
+	color: #F47922;
+}
+
+#directoryLocation {
+	height: 10%;
+	margin-bottom: 2vh;
+	opacity: 0;
+	display: block;
+}
+
+#directoryLocation p {
+	padding: 0.5vh;
+	margin: 1vh 1.5vh 1vh 1.5vh;
+	border-radius: 5px;
+	display: inline-block;
+}
+
+#directoryLocation i {
+	font-size: 150%;
+}
+
+#directoryHeader .name, .item .name {
+	grid-column: 1;
+}
+
+#directoryHeader .date, .item .modified {
+	grid-column: 2;
+}
+
+#directoryHeader .size, .item .size {
+	grid-column: 3;
+}
+
+#directoryHeader p, .item p {
+	margin: 0;
+}
+
+.subdir:hover {
+	background-color: rgba(0,0,0,0.1);
+}

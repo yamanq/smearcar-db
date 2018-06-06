@@ -232,6 +232,7 @@ patch_functions = {
 }
 
 
+
 # Render the client at the default URL
 @app.route("/")
 def initial():
@@ -350,5 +351,42 @@ def editors():
     else:
         return "Bad Request"
 
+@app.route("/directory", methods=["GET","POST"])
+def directory():
+    rootDir = "directory/"
+    if request.method == "GET":
+        return jsonify({"dir": rootDir})
+    if request.method == "POST":
+        received = request.get_json()
+        files = []
+        for filename in os.listdir(received["path"]):
+            file = {}
+            filedir = received["path"]+filename
+            isdir = os.path.isdir(filedir)
+            file["name"] = filename
+            file["date"] = datetime.datetime.fromtimestamp(os.path.getmtime(filedir)).strftime("%B %d, %Y")
+            if(isdir):
+                file["size"] = "- - - -"
+                file["folder"] = "true"
+            else:
+                file["size"] = sizeof_fmt(os.path.getsize(filedir))
+                file["folder"] = "false"
+            
+            files.append(file)
+        return jsonify(files)
+
+def sizeof_fmt(num, suffix='B'):
+    for unit in ['','K','M','G','T','P','E','Z']:
+        if abs(num) < 1024.0:
+            return "%3.1f%s%s" % (num, unit, suffix)
+        num /= 1024.0
+    return "%.1f%s%s" % (num, 'Yi', suffix)
+
+@app.route("/directory/<path:file>", methods=["GET"])
+def dir_download(file):
+    print(file)
+    return send_file(file)
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0")
+
