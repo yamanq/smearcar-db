@@ -10,6 +10,7 @@ from flask import send_file
 import datetime
 import os
 from scipy import stats
+from scipy.optimize import curve_fit
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///data.db'
@@ -61,6 +62,9 @@ def rand_jitter(arr):
     stdev = .01*(max(arr)-min(arr))
     return arr + np.random.randn(len(arr)) * stdev
 
+def yule(x, a, b, c):
+    return a * (c**x) / (x**b)
+
 def uniqueness(title="Figure 1"):
     x = []
     y = []
@@ -80,7 +84,7 @@ def uniqueness(title="Figure 1"):
     plt.title(title)
     plt.show()
 
-def phoneme_rank(scatter=False, detail=1000, textOutput=False, title="Figure 2"):
+def phoneme_rank(yule=True, detail=1000, textOutput=False, title="Figure 2"):
     speakers = {
         'Spanish (Castillian)': 46.4,
         'English (American)': 308.9,
@@ -106,12 +110,26 @@ def phoneme_rank(scatter=False, detail=1000, textOutput=False, title="Figure 2")
     if textOutput:
         return labels
 
-    if scatter:
-        plt.yscale("log")
-        plt.plot(range(len(data)), data)
-    else:
-        plt.bar(range(len(data)), data)
+    x = range(len(data)+1)[1:]
+    if yule:
+        # plot raw data
+        plt.plot(x, data, 'b-')
 
+        # Calculate Yule Distribution
+        popt, pcov = curve_fit(yule, x, data)
+        print(popt)
+
+        # Calculate R^2
+        ss_res = np.sum((data - yule(x, *popt))**2)
+        ss_tot = np.sum((data - np.mean(data))**2)
+        print(1 - (ss_res / ss_tot))
+
+        plt.yscale("log")
+        plt.plot(x, yule(x, *popt), "r--")
+    else:
+        plt.bar(x, data)
+
+    # plt.xlim(xmin=1)
     plt.xlabel("Phoneme Rank")
     plt.ylabel("Frequency weighted by Number of Speakers / %")
     plt.title(title)
@@ -131,8 +149,7 @@ def rank_compare(textOutput=True, title="Rank Comparison"):
     original_ranks = [original.index(phoneme) + 1 for phoneme in phoible]
     if textOutput:
         return {"kendall": stats.kendalltau(phoible_ranks, original_ranks),
-                "spearman": stats.spearmanr(phoible_ranks, original_ranks),
-                "wilcoxon": stats.wilcoxon(phoible_ranks, original_ranks, zero_method="pratt")}
+                "spearman": stats.spearmanr(phoible_ranks, original_ranks)}
     plt.scatter(phoible_ranks, original_ranks)
     plt.xlabel("Phoible Rank")
     plt.ylabel("Weighted Rank")
