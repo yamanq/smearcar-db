@@ -1,14 +1,8 @@
-var navSelect = "home";
-var dataMode;
-var serverURL = window.location.origin;
-var data;
-var languageChart;
-var dataOpen = false;
-var submittable = true;
-var flipMode = "dataValues1";
-var dropOp = {};
-var dropOpStore = {};
-var loginInfo = {};
+var navSelect = "home", flipMode = "dataValues1", currDir = "",
+    dataMode, data, languageChart, rootDir, files,
+    serverURL = window.location.origin,
+    dataOpen = false, submittable = true, clickable = true,
+    dropOp = {}, dropOpStore = {}, loginInfo = {};
 
 var navi = [ // Array containing navigation items in form [Font-Awesome class name, Display Text, Onclick function].
     ["home", "Home", "home"],
@@ -23,7 +17,6 @@ var authorityLabels = {
     2: "#2: Edit values and add files", 
     3: "#3: No access"
 };
-
 
 var modals = [
     {
@@ -199,6 +192,8 @@ function createNav() {
 
 function updateMain(op) { // Updates the actual page.
     updateNav(op);
+    if(flipMode === "dataValues2") navSelect = "dataValues2";
+    if(op === "files") getFiles();
     document.getElementById(navSelect).style.opacity = "0";
     setTimeout(function() {
         document.getElementById(navSelect).style.display = "none";
@@ -243,6 +238,186 @@ function getData(updatePage) {
                 console.log(e);
             }
         );
+}
+
+function getFiles() {
+    $.ajax({
+        url: serverURL + "/directory",
+        type: 'GET'
+    })
+    .then(
+        function success(incoming) {
+            rootDir = incoming.dir;
+            listDir("");
+        }
+    );
+}
+
+function listDir(dir) {
+    $.ajax({
+        url: serverURL + "/directory",
+        type: 'POST',
+        dataType: "json",
+        contentType: 'application/json;charset=UTF-8',
+        data: JSON.stringify({path:rootDir+dir})
+    })
+    .then(
+        function success(incoming) {
+            files = incoming;
+            dispDir();
+            clickable = true;
+        }
+    );
+}
+
+function dispDir() {
+    updateLocation();
+    document.getElementById("directory").removeChild(document.getElementById("directoryCont"));
+    var cont = document.createElement("div");
+    cont.id = "directoryCont";
+    cont.style.opacity = "0";
+    cont.className = "transition";
+
+    selectName = "";
+    var item;
+    if(files.length === 0) {
+        var p = document.createElement("p");
+        p.appendChild(document.createTextNode("Nothing here!"));
+        p.style.fontWeight = "100";
+        cont.appendChild(p);
+    }
+    for(var i = 0; i < files.length; i++) {
+        item = createRow();
+
+        var curr = files[i];
+        var name = document.createTextNode(curr.name);
+        var modified = document.createTextNode(curr.date);
+        var size = document.createTextNode(curr.size);
+
+        item.childNodes[0].appendChild(name);
+        item.childNodes[1].appendChild(modified);
+        item.childNodes[2].appendChild(size);
+
+        var ext = document.createAttribute("ext");
+
+        if(curr.folder == "true") {
+            ext.value = "fol";
+        } else {
+            console.log(name);
+            var f = document.createElement("i");
+            var a = document.createElement("a");
+            a.href = getURI(curr.name)
+            a.setAttribute("target", "_blank");
+            f.className = "fa fa-download transition";
+            a.appendChild(f);
+            item.appendChild(a);
+        }
+        item.setAttributeNode(ext);
+
+        item.onclick = function() {
+            if(clickable == true) {
+                var name = this.childNodes[0].innerText;
+                if(selectName == name) {
+                    clickable = false;
+                    attr = this.getAttribute("ext");
+                    if(attr == "fol") {
+                        clearTbl();
+                        setTimeout(function() {
+                            currDir += name+"/";
+                            listDir(currDir);
+                        }, 300)
+                        return;
+                    }
+                }
+                selectName = name;
+                selectDiv = this;
+                for(var i =0; i < document.getElementsByClassName("item").length;i++){
+                    document.getElementsByClassName("item")[i].style.backgroundColor = "";
+                }
+                this.style.backgroundColor = "#d9d9d9";
+            }
+        }
+        cont.appendChild(item);
+        item = null;
+    }
+    document.getElementById("directory").appendChild(cont);
+    setTimeout(function() {
+        document.getElementById("directoryCont").style.opacity = "1";
+    }, 100);
+}
+
+function getURI(name) {
+    var dirs = (rootDir+currDir+name).split("/");
+    var uri = window.location.origin+"/directory";
+    for(var i = 0; i < dirs.length; i++) uri+="/"+encodeURIComponent(dirs[i]);
+    return uri;
+}
+
+function clearTbl() {
+    selected = undefined;
+    selectDiv = undefined;
+    document.getElementById("directoryCont").style.opacity = "0";
+    document.getElementById("directoryLocation").style.opacity = "0";
+}
+
+function createRow() {
+    var item = document.createElement("div");
+    item.className = "item transition card";
+    var name = document.createElement("p");
+    name.className = "name";
+    item.appendChild(name);
+    var modified = document.createElement("p");
+    modified.className = "modified";
+    item.appendChild(modified);
+    var size = document.createElement("p");
+    size.className = "size";
+    item.appendChild(size);
+    return item;
+}
+
+function updateLocation() {
+    var loc = document.getElementById("directoryLocation");
+    while(loc.firstChild) loc.removeChild(loc.firstChild);
+    loc.style.opacity = "1";
+    var subdir = currDir.split("/");
+    subdir = subdir.slice(0, subdir.length-1);
+    for(var i = 0; i < subdir.length+1; i++) {
+        var p = document.createElement("p");
+        var ic = document.createElement("i");
+        ic.className = "fa fa-angle-right";
+        if(i !== 0) loc.appendChild(ic);
+        if(i === 0) {
+            p.appendChild(document.createTextNode("Database"));
+        } else {
+            p.appendChild(document.createTextNode(subdir[i-1]));
+        }
+        if(i !== subdir.length) {
+            p.style.cursor = "pointer";
+            p.className = "subdir transition";
+            p.onclick = function() {
+                clickable = false;
+                clearTbl();
+                subdirNum = subdir.indexOf(this.innerText);
+                if(subdirNum === -1) {
+                    currDir = "";
+                } else {
+                    currDir = subdir.slice(0, subdirNum+1).reduce(function(a,b) { return a+"/"+b; })+"/";
+                }
+                listDir(currDir);
+            }
+        }   
+        loc.appendChild(p);
+    }
+}
+
+function downloadFile(name) {
+    $.ajax({
+        url: serverURL + "/directory/download",
+        type: 'POST',
+        dataType: "json",
+        contentType: 'application/json;charset=UTF-8',
+        data: JSON.stringify({path:rootDir+currDir+name})
+    });
 }
 
 function language(language) {
@@ -367,19 +542,12 @@ function generateDropOp() { // For options that change based on data.
         var langInfo = phoneme(dropOpStore["phonemeSelect"]);
         var info = document.getElementById("phonemeInfoCont");
         var dataBox = document.getElementById("dataTableCont2");
-        var graph = document.querySelectorAll("#phonemeGraph > canvas")[0];
         info.style.opacity = "0";
         dataBox.style.opacity = "0";
-        graph.style.opacity = "0";
         setTimeout(function() {
             while (info.firstChild) {
                 info.removeChild(info.firstChild);
             }
-            var a = document.createElement("a");
-            a.appendChild(document.createTextNode("Sound"));
-            a.href = "https://en.wikipedia.org"; // replace with wikipedia
-            a.setAttribute("target", "_blank");
-            info.appendChild(a);
 
             // Generate data box material.
 
@@ -414,23 +582,8 @@ function generateDropOp() { // For options that change based on data.
                 dataBox.children[tableNum].appendChild(p1);
                 dataBox.children[tableNum].appendChild(p2);
             }
-            var graphData = langInfo.map(function(a) { return Object.entries(a)[0]; }).sort(function(a,b) {
-                return b[1] - a[1];
-            });
-            graphData = [graphData.map(function(a,b) {
-                return a[0];
-            }), graphData.map(function(a,b) {
-                return a[1];
-            })];
-            // Generate graphs.
-            var ctx = graph.getContext("2d");
-            try {
-                languageChart.destroy();
-            } catch(err) {}
-            languageChart = new Chart(ctx, chartOptions(graphData));
             info.style.opacity = "1";
             dataBox.style.opacity = "1";
-            graph.style.opacity = "1";
         }, 300);
     }].concat(["Select phoneme..."].concat(data.phonemes.sort()));
 
@@ -505,7 +658,7 @@ function createDrop() {
 function dropOpUpdate(op) {
     var dropdown = document.querySelectorAll(".dropdown[option=" + op + "] .button p")[0];
     if(op === "langSelect") dropdown.textContent = language(dropOpStore[op]).name;
-    if(op === "authority") dropdown.textContent = authorityLabels[dropOpStore[op]];
+    if(op === "phonemeSelect") dropdown.textContent = dropOpStore[op];
     (dropOp[op][0])();
 }
 
