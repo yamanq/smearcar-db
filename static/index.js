@@ -199,6 +199,7 @@ function createNav() {
 
 function updateMain(op) { // Updates the actual page.
     updateNav(op);
+    if(flipMode === "dataValues2") navSelect = "dataValues2";
     document.getElementById(navSelect).style.opacity = "0";
     setTimeout(function() {
         document.getElementById(navSelect).style.display = "none";
@@ -367,19 +368,12 @@ function generateDropOp() { // For options that change based on data.
         var langInfo = phoneme(dropOpStore["phonemeSelect"]);
         var info = document.getElementById("phonemeInfoCont");
         var dataBox = document.getElementById("dataTableCont2");
-        var graph = document.querySelectorAll("#phonemeGraph > canvas")[0];
         info.style.opacity = "0";
         dataBox.style.opacity = "0";
-        graph.style.opacity = "0";
         setTimeout(function() {
             while (info.firstChild) {
                 info.removeChild(info.firstChild);
             }
-            var a = document.createElement("a");
-            a.appendChild(document.createTextNode("Sound"));
-            a.href = "https://en.wikipedia.org"; // replace with wikipedia
-            a.setAttribute("target", "_blank");
-            info.appendChild(a);
 
             // Generate data box material.
 
@@ -414,23 +408,8 @@ function generateDropOp() { // For options that change based on data.
                 dataBox.children[tableNum].appendChild(p1);
                 dataBox.children[tableNum].appendChild(p2);
             }
-            var graphData = langInfo.map(function(a) { return Object.entries(a)[0]; }).sort(function(a,b) {
-                return b[1] - a[1];
-            });
-            graphData = [graphData.map(function(a,b) {
-                return a[0];
-            }), graphData.map(function(a,b) {
-                return a[1];
-            })];
-            // Generate graphs.
-            var ctx = graph.getContext("2d");
-            try {
-                languageChart.destroy();
-            } catch(err) {}
-            languageChart = new Chart(ctx, chartOptions(graphData));
             info.style.opacity = "1";
             dataBox.style.opacity = "1";
-            graph.style.opacity = "1";
         }, 300);
     }].concat(["Select phoneme..."].concat(data.phonemes.sort()));
 
@@ -505,7 +484,7 @@ function createDrop() {
 function dropOpUpdate(op) {
     var dropdown = document.querySelectorAll(".dropdown[option=" + op + "] .button p")[0];
     if(op === "langSelect") dropdown.textContent = language(dropOpStore[op]).name;
-    if(op === "authority") dropdown.textContent = authorityLabels[dropOpStore[op]];
+    if(op === "phonemeSelect") dropdown.textContent = dropOpStore[op];
     (dropOp[op][0])();
 }
 

@@ -243,6 +243,9 @@ a {
 	height: 42%;
 }
 
+#dataTableCont, #dataTable2Cont {
+	height: 40%;
+}
 #dataTable, #dataTable2 {
 	grid-template-columns: 90fr 10fr;
 }
@@ -250,7 +253,8 @@ a {
 
 #langSelect, #phonemeSelect {
 	grid-column: 1;
-	grid-row: 1
+	grid-row: 1;
+	grid-template-columns: 35% auto 20%;
 }
 
 #langSelect .dropdown, #phonemeSelect .dropdown {
@@ -260,7 +264,7 @@ a {
 }
 
 #flipMode1, #flipMode2 {
-	grid-column: 4;
+	grid-column: 3;
 	grid-row: 1;
 	cursor: pointer;
 	text-align: right;
@@ -365,7 +369,7 @@ a {
 
 #header2 {
 	display:grid;
-	grid-template-columns: 20% 60% 10% 10%;
+	grid-template-columns: 60% 20% 10% 10%;
 	grid-template-rows: 100%;
 }
 
@@ -430,6 +434,6 @@ a {
 #headerTitle {
 	font-size: 200%;
 	font-weight: 300;
-	margin: auto 10% auto;
+	margin: auto 3% auto;
 	font-family: 'Saira Condensed', sans-serif;
 }
