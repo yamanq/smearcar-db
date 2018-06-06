@@ -485,6 +485,21 @@ function generateDropOp() { // For options that change based on data.
             a.setAttribute("target", "_blank");
             info.appendChild(a);
 
+            // Spreadsheet Download
+            var download = document.createElement("a");
+
+            var csvdata = "data:text/csv;charset=utf-8";
+            var phonemedata = Object.entries(language(langInfo.id)["phonemes"]);
+            phonemedata.forEach(function(phon) {
+                csvdata += phon.join(',') + "\r\n";
+            });
+            var encodedcsv = encodeURI(csvdata);
+
+            download.setAttribute("href", encodedcsv);
+            download.setAttribute("download", langInfo.name + ".csv");
+            download.innerHTML = "Spreadsheet";
+            info.appendChild(download);
+
             // Generate data box material.
             var phonemes = Object.keys(langInfo.phonemes).sort(Intl.Collator().compare);
 
