@@ -7,7 +7,7 @@ var navSelect = "home", flipMode = "dataValues1", currDir = "",
 var navi = [ // Array containing navigation items in form [Font-Awesome class name, Display Text, Onclick function].
     ["home", "Home", "home"],
     ["bar-chart", "Data Values", "dataValues1"],
-    ["database", "Database and Files", "files"],
+    // ["database", "Database and Files", "files"],
     ["info", "About", "about"]
 ];
 
