@@ -15,7 +15,7 @@ import os
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///data.db'
 app.config.update(
-    DEBUG=True,
+    # DEBUG=True,
     TEMPLATES_AUTO_RELOAD=True
 )
 db = SQLAlchemy(app)
