@@ -84,56 +84,58 @@ class Editor(db.Model):
 #     plt.title(title)
 #     plt.show()
 
-# def phoneme_rank(yule=True, detail=1000, textOutput=False, title="Figure 2"):
-#     speakers = {
-#         'Spanish (Castillian)': 46.4,
-#         'English (American)': 308.9,
-#         'Spanish (American)': 435.7,
-#         'Japanese': 128,
-#         'German': 76,
-#         'Arabic': 315,
-#         'Mandarin': 909,
-#         'Portuguese (Brazilian)': 194,
-#         'French': 76.8,
-#         'Hindi': 260,
-#         'Polish': 40.3,
-#         'Samoan': 0.40742,
-#         'Kaiwa': 0.0021,
-#         'Bengali': 243,
-#         'Swedish': 12.8,
-#         'Malay': 60.7,
-#         'Italian': 64.8
-#     }
-#     total = sum(speakers.values())
-#     calculation = sorted([(phoneme.name, sum([frequency.value * speakers[Language.query.filter_by(id=frequency.language_id).first().name] / (total * len(Language.query.filter_by(name=Language.query.filter_by(id=frequency.language_id).first().name).all()) ) for frequency in Frequency.query.filter_by(phoneme_id=phoneme.id).all()])) for phoneme in Phoneme.query.limit(detail).all()], key=lambda x:-x[1])
-#     labels, data = zip(*calculation)
-#     if textOutput:
-#         return labels
+def phoneme_rank(yule=True, detail=1000, textOutput=False, title="Figure 2", databaseOut=False):
+    speakers = {
+        'Spanish (Castillian)': 46.4,
+        'English (American)': 308.9,
+        'Spanish (American)': 435.7,
+        'Japanese': 128,
+        'German': 76,
+        'Arabic': 315,
+        'Mandarin': 909,
+        'Portuguese (Brazilian)': 194,
+        'French': 76.8,
+        'Hindi': 260,
+        'Polish': 40.3,
+        'Samoan': 0.40742,
+        'Kaiwa': 0.0021,
+        'Bengali': 243,
+        'Swedish': 12.8,
+        'Malay': 60.7,
+        'Italian': 64.8
+    }
+    total = sum(speakers.values())
+    calculation = sorted([(phoneme.name, sum([frequency.value * speakers[Language.query.filter_by(id=frequency.language_id).first().name] / (total * len(Language.query.filter_by(name=Language.query.filter_by(id=frequency.language_id).first().name).all()) ) for frequency in Frequency.query.filter_by(phoneme_id=phoneme.id).all()])) for phoneme in Phoneme.query.limit(detail).all()], key=lambda x:-x[1])
+    if databaseOut:
+        return calculation
+    labels, data = zip(*calculation)
+    if textOutput:
+        return labels
 
-#     x = range(len(data)+1)[1:]
-#     if yule:
-#         # plot raw data
-#         plt.plot(x, data, 'b-')
+    x = range(len(data)+1)[1:]
+    if yule:
+        # plot raw data
+        plt.plot(x, data, 'b-')
 
-#         # Calculate Yule Distribution
-#         popt, pcov = curve_fit(yule, x, data)
-#         print(popt)
+        # Calculate Yule Distribution
+        popt, pcov = curve_fit(yule, x, data)
+        print(popt)
 
-#         # Calculate R^2
-#         ss_res = np.sum((data - yule(x, *popt))**2)
-#         ss_tot = np.sum((data - np.mean(data))**2)
-#         print(1 - (ss_res / ss_tot))
+        # Calculate R^2
+        ss_res = np.sum((data - yule(x, *popt))**2)
+        ss_tot = np.sum((data - np.mean(data))**2)
+        print(1 - (ss_res / ss_tot))
 
-#         plt.yscale("log")
-#         plt.plot(x, yule(x, *popt), "r--")
-#     else:
-#         plt.bar(x, data)
+        plt.yscale("log")
+        plt.plot(x, yule(x, *popt), "r--")
+    else:
+        plt.bar(x, data)
 
-#     # plt.xlim(xmin=1)
-#     plt.xlabel("Phoneme Rank")
-#     plt.ylabel("Frequency weighted by Number of Speakers / %")
-#     plt.title(title)
-#     plt.show()
+    # plt.xlim(xmin=1)
+    plt.xlabel("Phoneme Rank")
+    plt.ylabel("Frequency weighted by Number of Speakers / %")
+    plt.title(title)
+    plt.show()
 
 # def phoible_compare():
 #     # lang_id = Language.query.filter_by(name=lang).first().id
@@ -161,6 +163,14 @@ def database():
     final = {'values': []}
     final['languages'] = [f.name for f in Language.query.order_by(Language.name).all()]
     final['phonemes'] = [f.name for f in Phoneme.query.all()]
+
+    # Add All Optional
+    allobject = {'id': 0,
+                 'name': "All",
+                 'phonemes': dict(phoneme_rank(databaseOut=True))}
+    final['values'].append(allobject)
+    final['languages'].append('All')
+
     for language in Language.query.order_by(Language.name).all():
         languageobject = {'id': language.id,
                           'name': language.name,

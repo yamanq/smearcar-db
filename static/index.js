@@ -272,155 +272,6 @@ function listDir(dir) {
     );
 }
 
-function dispDir() {
-    updateLocation();
-    document.getElementById("directory").removeChild(document.getElementById("directoryCont"));
-    var cont = document.createElement("div");
-    cont.id = "directoryCont";
-    cont.style.opacity = "0";
-    cont.className = "transition";
-
-    selectName = "";
-    var item;
-    if(files.length === 0) {
-        var p = document.createElement("p");
-        p.appendChild(document.createTextNode("Nothing here!"));
-        p.style.fontWeight = "100";
-        cont.appendChild(p);
-    }
-    for(var i = 0; i < files.length; i++) {
-        item = createRow();
-
-        var curr = files[i];
-        var name = document.createTextNode(curr.name);
-        var modified = document.createTextNode(curr.date);
-        var size = document.createTextNode(curr.size);
-
-        item.childNodes[0].appendChild(name);
-        item.childNodes[1].appendChild(modified);
-        item.childNodes[2].appendChild(size);
-
-        var ext = document.createAttribute("ext");
-
-        if(curr.folder == "true") {
-            ext.value = "fol";
-        } else {
-            console.log(name);
-            var f = document.createElement("i");
-            var a = document.createElement("a");
-            a.href = getURI(curr.name);
-            a.setAttribute("target", "_blank");
-            f.className = "fa fa-download transition";
-            a.appendChild(f);
-            item.appendChild(a);
-        }
-        item.setAttributeNode(ext);
-
-        item.onclick = function() {
-            if(clickable == true) {
-                var name = this.childNodes[0].innerText;
-                if(selectName == name) {
-                    clickable = false;
-                    attr = this.getAttribute("ext");
-                    if(attr == "fol") {
-                        clearTbl();
-                        setTimeout(function() {
-                            currDir += name+"/";
-                            listDir(currDir);
-                        }, 300);
-                        return;
-                    }
-                }
-                selectName = name;
-                selectDiv = this;
-                for(var i =0; i < document.getElementsByClassName("item").length;i++){
-                    document.getElementsByClassName("item")[i].style.backgroundColor = "";
-                }
-                this.style.backgroundColor = "#d9d9d9";
-            }
-        };
-        cont.appendChild(item);
-        item = null;
-    }
-    document.getElementById("directory").appendChild(cont);
-    setTimeout(function() {
-        document.getElementById("directoryCont").style.opacity = "1";
-    }, 100);
-}
-
-function getURI(name) {
-    var dirs = (rootDir+currDir+name).split("/");
-    var uri = window.location.origin+"/directory";
-    for(var i = 0; i < dirs.length; i++) uri+="/"+encodeURIComponent(dirs[i]);
-    return uri;
-}
-
-function clearTbl() {
-    selected = undefined;
-    selectDiv = undefined;
-    document.getElementById("directoryCont").style.opacity = "0";
-    document.getElementById("directoryLocation").style.opacity = "0";
-}
-
-function createRow() {
-    var item = document.createElement("div");
-    item.className = "item transition card";
-    var name = document.createElement("p");
-    name.className = "name";
-    item.appendChild(name);
-    var modified = document.createElement("p");
-    modified.className = "modified";
-    item.appendChild(modified);
-    var size = document.createElement("p");
-    size.className = "size";
-    item.appendChild(size);
-    return item;
-}
-
-function updateLocation() {
-    var loc = document.getElementById("directoryLocation");
-    while(loc.firstChild) loc.removeChild(loc.firstChild);
-    loc.style.opacity = "1";
-    var subdir = currDir.split("/");
-    subdir = subdir.slice(0, subdir.length-1);
-    for(var i = 0; i < subdir.length+1; i++) {
-        var p = document.createElement("p");
-        var ic = document.createElement("i");
-        ic.className = "fa fa-angle-right";
-        if(i !== 0) loc.appendChild(ic);
-        if(i === 0) {
-            p.appendChild(document.createTextNode("Database"));
-        } else {
-            p.appendChild(document.createTextNode(subdir[i-1]));
-        }
-        if(i !== subdir.length) {
-            p.style.cursor = "pointer";
-            p.className = "subdir transition";
-            p.onclick = function() {
-                clickable = false;
-                clearTbl();
-                subdirNum = subdir.indexOf(this.innerText);
-                if(subdirNum === -1) {
-                    currDir = "";
-                } else {
-                    currDir = subdir.slice(0, subdirNum+1).reduce(function(a,b) { return a+"/"+b; })+"/";
-                }
-                listDir(currDir);
-            };
-        }
-        loc.appendChild(p);
-    }
-}
-
-function downloadFile(name) {
-    $.ajax({
-        url: serverURL + "/directory/download",
-        type: 'POST',
-        dataType: "json",
-        contentType: 'application/json;charset=UTF-8',
-        data: JSON.stringify({path:rootDir+currDir+name})
-    });
-}
 
 function language(language) {
     return data.values.filter(function(element) {
@@ -506,37 +357,72 @@ function generateDropOp() { // For options that change based on data.
             while (dataBox.firstChild) {
                 dataBox.removeChild(dataBox.firstChild);
             }
-            dataBox.style.gridTemplateColumns = "repeat("+Math.ceil(phonemes.length/6).toString() + ", 1fr)";
-            for(var i = 0; i < 9; i++) dataBox.appendChild(document.createElement("div")); // Extra divs will be filled if necessary.
-            for(i = 0; i < phonemes.length; i++) {
-                var tableNum = Math.floor(i/6);
-                var row = i+2-tableNum*7;
-                var p1 = document.createElement("p");
-                var p2 = document.createElement("p");
-                p1.style.textAlign = "right";
-                p2.style.textAlign = "left";
-                p1.style.borderRight = "1px solid #D5D5D5";
-                if(i%6 === 0) {
-                    var pT1 = document.createElement("p");
-                    var pT2 = document.createElement("p");
-                    pT1.style.textAlign = "right";
-                    pT2.style.textAlign = "left";
-                    pT1.style.borderRight = "1px solid #D5D5D5";
-                    pT1.style.borderBottom = "1px solid #D5D5D5";
-                    pT2.style.borderBottom = "1px solid #D5D5D5";
-                    pT1.appendChild(document.createTextNode("Phoneme"));
-                    pT2.appendChild(document.createTextNode("Percent"));
-                    dataBox.children[tableNum].appendChild(pT1);
-                    dataBox.children[tableNum].appendChild(pT2);
+            if (phonemes.length < 61) {
+                dataBox.style.gridTemplateColumns = "repeat("+Math.ceil(phonemes.length/10).toString() + ", 1fr)";
+                for(var i = 0; i < 7; i++) dataBox.appendChild(document.createElement("div")); // Extra divs will be filled if necessary.
+                for(i = 0; i < phonemes.length; i++) {
+                    var tableNum = Math.floor(i/10);
+                    var row = i+2-tableNum*11;
+                    var p1 = document.createElement("p");
+                    var p2 = document.createElement("p");
+                    p1.style.textAlign = "right";
+                    p2.style.textAlign = "left";
+                    p1.style.borderRight = "1px solid #D5D5D5";
+                    if(i%10 === 0) {
+                        var pT1 = document.createElement("p");
+                        var pT2 = document.createElement("p");
+                        pT1.style.textAlign = "right";
+                        pT2.style.textAlign = "left";
+                        pT1.style.borderRight = "1px solid #D5D5D5";
+                        pT1.style.borderBottom = "1px solid #D5D5D5";
+                        pT2.style.borderBottom = "1px solid #D5D5D5";
+                        pT1.appendChild(document.createTextNode("Phoneme"));
+                        pT2.appendChild(document.createTextNode("Percent"));
+                        dataBox.children[tableNum].appendChild(pT1);
+                        dataBox.children[tableNum].appendChild(pT2);
+                    }
+                    p1.appendChild(document.createTextNode(phonemes[i]));
+                    p2.appendChild(document.createTextNode(Rnd(langInfo.phonemes[phonemes[i]], 2)));
+                    dataBox.children[tableNum].appendChild(p1);
+                    dataBox.children[tableNum].appendChild(p2);
                 }
-                p1.appendChild(document.createTextNode(phonemes[i]));
-                p2.appendChild(document.createTextNode(Rnd(langInfo.phonemes[phonemes[i]], 2)));
-                dataBox.children[tableNum].appendChild(p1);
-                dataBox.children[tableNum].appendChild(p2);
+                document.getElementById("dataTableCont").style.overflow = "";
+            } else {
+                dataBox.style.gridTemplateColumns = "repeat("+Math.ceil(phonemes.length/20).toString() + ", 1fr)";
+                for(var i = 0; i < 10; i++) dataBox.appendChild(document.createElement("div")); // Extra divs will be filled if necessary.
+                for(i = 0; i < phonemes.length; i++) {
+                    var tableNum = Math.floor(i/20);
+                    var row = i+2-tableNum*21;
+                    var p1 = document.createElement("p");
+                    var p2 = document.createElement("p");
+                    p1.style.textAlign = "right";
+                    p2.style.textAlign = "left";
+                    p1.style.borderRight = "1px solid #D5D5D5";
+                    if(i%20 === 0) {
+                        var pT1 = document.createElement("p");
+                        var pT2 = document.createElement("p");
+                        pT1.style.textAlign = "right";
+                        pT2.style.textAlign = "left";
+                        pT1.style.borderRight = "1px solid #D5D5D5";
+                        pT1.style.borderBottom = "1px solid #D5D5D5";
+                        pT2.style.borderBottom = "1px solid #D5D5D5";
+                        pT1.appendChild(document.createTextNode("Phoneme"));
+                        pT2.appendChild(document.createTextNode("Percent"));
+                        dataBox.children[tableNum].appendChild(pT1);
+                        dataBox.children[tableNum].appendChild(pT2);
+                    }
+                    p1.appendChild(document.createTextNode(phonemes[i]));
+                    p2.appendChild(document.createTextNode(Rnd(langInfo.phonemes[phonemes[i]], 2)));
+                    dataBox.children[tableNum].appendChild(p1);
+                    dataBox.children[tableNum].appendChild(p2);
+                }
+                document.getElementById("dataTableCont").style.overflow = "auto";
             }
+
+
             var graphData = Object.entries(langInfo.phonemes).sort(function(a,b) {
                 return b[1] - a[1];
-            });
+            }).slice(0,49);
             graphData = [graphData.map(function(a,b) {
                 return a[0];
             }), graphData.map(function(a,b) {
@@ -571,17 +457,17 @@ function generateDropOp() { // For options that change based on data.
             while (dataBox.firstChild) {
                 dataBox.removeChild(dataBox.firstChild);
             }
-            dataBox.style.gridTemplateColumns = "repeat("+Math.ceil(langInfo.length/6).toString() + ", 1fr)";
+            dataBox.style.gridTemplateColumns = "repeat("+Math.ceil(langInfo.length/7).toString() + ", 1fr)";
             for(var i = 0; i < 9; i++) dataBox.appendChild(document.createElement("div")); // Extra divs will be filled if necessary.
             for(i = 0; i < langInfo.length; i++) {
-                var tableNum = Math.floor(i/6);
-                var row = i+2-tableNum*7;
+                var tableNum = Math.floor(i/7);
+                var row = i+2-tableNum*8;
                 var p1 = document.createElement("p");
                 var p2 = document.createElement("p");
                 p1.style.textAlign = "right";
                 p2.style.textAlign = "left";
                 p1.style.borderRight = "1px solid #D5D5D5";
-                if(i%6 === 0) {
+                if(i%7 === 0) {
                     var pT1 = document.createElement("p");
                     var pT2 = document.createElement("p");
                     pT1.style.textAlign = "right";
@@ -1010,7 +896,6 @@ modals[1].submitClick= function() { // submitClick for editLanguage.
         remove: diffRemove.length > 0,
         source: source.length !== 0
     };
-    console.log(todo);
 
     if(!todo.name && !todo.add && !todo.remove && !todo.source) {
         modal("editLanguage", false);
