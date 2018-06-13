@@ -7,14 +7,14 @@ var navSelect = "home", flipMode = "dataValues1", currDir = "",
 var navi = [ // Array containing navigation items in form [Font-Awesome class name, Display Text, Onclick function].
     ["home", "Home", "home"],
     ["bar-chart", "Data Values", "dataValues1"],
-    ["database", "Database and Files", "files"],
+    // ["database", "Database and Files", "files"],
     ["info", "About", "about"]
 ];
 
 var authorityLabels = {
-    0: "#0: Full access", 
-    1: "#1: Create updates", 
-    2: "#2: Edit values and add files", 
+    0: "#0: Full access",
+    1: "#1: Create updates",
+    2: "#2: Edit values and add files",
     3: "#3: No access"
 };
 
@@ -130,11 +130,11 @@ var modals = [
             form: [
                 {
                     name: "Title",
-                    formType: "input",
+                    formType: "input"
                 },
                 {
                     name: "Author",
-                    formType: "input",
+                    formType: "input"
                 },
                 {
                     name: "Message",
@@ -206,7 +206,9 @@ function updateMain(op) { // Updates the actual page.
 }
 
 function updateNav(op) { // Updates the sidebar navigation.
-    document.getElementById("headerTitle").textContent = navi.filter(function(val) { return val[2] === op })[0][1];
+    document.getElementById("headerTitle").textContent = navi.filter(function(val) {
+        return val[2] === op;
+    })[0][1];
     var oldNav = document.querySelectorAll("[option=" + navSelect + "]")[0];
     var newNav = document.querySelectorAll("[option=" + op + "]")[0];
     oldNav.style.backgroundColor = "rgba(0,0,0,0)";
@@ -306,7 +308,7 @@ function dispDir() {
             console.log(name);
             var f = document.createElement("i");
             var a = document.createElement("a");
-            a.href = getURI(curr.name)
+            a.href = getURI(curr.name);
             a.setAttribute("target", "_blank");
             f.className = "fa fa-download transition";
             a.appendChild(f);
@@ -325,7 +327,7 @@ function dispDir() {
                         setTimeout(function() {
                             currDir += name+"/";
                             listDir(currDir);
-                        }, 300)
+                        }, 300);
                         return;
                     }
                 }
@@ -336,7 +338,7 @@ function dispDir() {
                 }
                 this.style.backgroundColor = "#d9d9d9";
             }
-        }
+        };
         cont.appendChild(item);
         item = null;
     }
@@ -404,8 +406,8 @@ function updateLocation() {
                     currDir = subdir.slice(0, subdirNum+1).reduce(function(a,b) { return a+"/"+b; })+"/";
                 }
                 listDir(currDir);
-            }
-        }   
+            };
+        }
         loc.appendChild(p);
     }
 }
@@ -482,6 +484,21 @@ function generateDropOp() { // For options that change based on data.
             a.href = serverURL + "/server/" + langInfo.id;
             a.setAttribute("target", "_blank");
             info.appendChild(a);
+
+            // Spreadsheet Download
+            var download = document.createElement("a");
+
+            var csvdata = "data:text/csv;charset=utf-8";
+            var phonemedata = Object.entries(language(langInfo.id)["phonemes"]);
+            phonemedata.forEach(function(phon) {
+                csvdata += phon.join(',') + "\r\n";
+            });
+            var encodedcsv = encodeURI(csvdata);
+
+            download.setAttribute("href", encodedcsv);
+            download.setAttribute("download", langInfo.name + ".csv");
+            download.innerHTML = "Spreadsheet";
+            info.appendChild(download);
 
             // Generate data box material.
             var phonemes = Object.keys(langInfo.phonemes).sort(Intl.Collator().compare);
@@ -613,9 +630,9 @@ function createDrop() {
             p3.className = "transition";
             p3.id = "addData";
             p3.appendChild(document.createTextNode("Add language..."));
-            div2.appendChild(p3); 
+            div2.appendChild(p3);
         }
-        
+
         for (var j = 2; j < dropOp[op].length; j++) {
             var p2 = document.createElement("p");
             p2.setAttribute("dropoption", dropOp[op][j]);
@@ -773,7 +790,7 @@ function modal(id, open) {
         setTimeout(function() {
            document.getElementById(id).style.display = "none";
         }, 300);
-    }   
+    }
 }
 
 function generateModals() {
@@ -810,8 +827,8 @@ function generateModals() {
             p.appendChild(document.createTextNode(form[j].name + ":"));
             var input = document.createElement(form[j].formType);
             if(form[j].inputType) input.type = form[j].inputType;
-            if(form[j].height) input.style.height = form[j].height; 
-            
+            if(form[j].height) input.style.height = form[j].height;
+
             div.appendChild(p);
             div.appendChild(input);
             modalCont.appendChild(div);
@@ -826,7 +843,7 @@ function generateModals() {
         submit.style.display = "grid";
         submit.onclick = function() {
             (eachModal.submitClick)();
-        }
+        };
         var p2 = document.createElement("p");
         p2.className = "card modalSubmit"; // Refer to modalSubmit CSS to edit.
         p2.appendChild(document.createTextNode("Submit!"));
@@ -838,13 +855,13 @@ function generateModals() {
         document.getElementById(modals[i].button).onclick = function() {
             if(eachModal.buttonClick) (eachModal.buttonClick)();
             modal(eachModal.modal, true);
-        }
+        };
 
         overlay.onclick = function(event) {
             if(this !== event.target) return;
             for(var i = 0; i < document.getElementsByTagName("input").length; i++) document.getElementsByTagName("input")[i].value = "";
             modal(eachModal.modal, false);
-        }
+        };
     }
 }
 
@@ -882,14 +899,14 @@ modals[0].submitClick = function() { // submitClick for newLanguage.
         submittable = true;
         return;
     }
-   
+
     var newLanguage = {
         name: name,
         phonemes: phonemes,
         editor: loginInfo
     };
 
-    var p = document.querySelectorAll("#newLanguageSubmit p")[0]
+    var p = document.querySelectorAll("#newLanguageSubmit p")[0];
     p.innerText = "Processing...";
     p.style.backgroundColor = "rgba(0,0,0,0.2)";
 
@@ -913,7 +930,7 @@ modals[0].submitClick = function() { // submitClick for newLanguage.
         formData.append("file", source[0]);
         formData.append("lang_id", data.values.length);
         formData.append("username", newLanguage.editor.username);
-        formData.append("password", newLanguage.editor.password)
+        formData.append("password", newLanguage.editor.password);
 
         $.ajax({
             url: serverURL + '/source',
@@ -934,7 +951,7 @@ modals[0].submitClick = function() { // submitClick for newLanguage.
                 }, 300);
                 getData("add");
             }
-        )
+        );
     });
 };
 
@@ -1000,7 +1017,7 @@ modals[1].submitClick= function() { // submitClick for editLanguage.
         return;
     }
 
-    var p = document.querySelectorAll("#editLanguageSubmit p")[0]
+    var p = document.querySelectorAll("#editLanguageSubmit p")[0];
     p.innerText = "Processing...";
     p.style.backgroundColor = "rgba(0,0,0,0.2)";
 
@@ -1135,7 +1152,7 @@ modals[1].submitClick= function() { // submitClick for editLanguage.
         formData.append("file", source[0]);
         formData.append("lang_id", langInfo.id);
         formData.append("username", loginInfo.username);
-        formData.append("password", loginInfo.password)
+        formData.append("password", loginInfo.password);
         $.ajax({
             url: serverURL + '/source',
             type: 'POST',
@@ -1155,7 +1172,7 @@ modals[1].submitClick= function() { // submitClick for editLanguage.
                 }, 300);
                 getData("edit");
             }
-        )
+        );
     }
 };
 
@@ -1189,7 +1206,7 @@ modals[3].submitClick = function() {
     if(!submittable) return;
     submittable = false;
     var info = [
-        document.querySelectorAll("#addUserUsername input")[0], 
+        document.querySelectorAll("#addUserUsername input")[0],
         document.querySelectorAll("#addUserPassword input")[0],
         document.querySelectorAll("#addUserAuthority input")[0]
     ];
@@ -1207,7 +1224,7 @@ modals[3].submitClick = function() {
         return;
     }
 
-    var p = document.querySelectorAll("#addUserSubmit p")[0]
+    var p = document.querySelectorAll("#addUserSubmit p")[0];
     p.innerText = "Processing...";
     p.style.backgroundColor = "rgba(0,0,0,0.2)";
 
@@ -1249,7 +1266,7 @@ modals[4].submitClick = function() {
     if(!submittable) return;
     submittable = false;
     var info = [
-        document.querySelectorAll("#writePostTitle input")[0], 
+        document.querySelectorAll("#writePostTitle input")[0],
         document.querySelectorAll("#writePostAuthor input")[0],
         document.querySelectorAll("#writePostMessage textarea")[0]
     ];
@@ -1267,7 +1284,7 @@ modals[4].submitClick = function() {
         return;
     }
 
-    var p = document.querySelectorAll("#writePostSubmit p")[0]
+    var p = document.querySelectorAll("#writePostSubmit p")[0];
     p.innerText = "Processing...";
     p.style.backgroundColor = "rgba(0,0,0,0.2)";
 

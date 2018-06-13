@@ -1,16 +1,16 @@
 from flask import Flask
 from flask import render_template, jsonify, request
 from flask_sqlalchemy import SQLAlchemy
-from numpy.polynomial.polynomial import polyfit
-from numpy import corrcoef
-import numpy as np
-import tkinter
-import matplotlib.pyplot as plt
+# from numpy.polynomial.polynomial import polyfit
+# from numpy import corrcoef
+# import numpy as np
+# import tkinter
+# import matplotlib.pyplot as plt
 from flask import send_file
 import datetime
 import os
-from scipy import stats
-from scipy.optimize import curve_fit
+# from scipy.optimize import curve_fit
+# from scipy import stats
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///data.db'
@@ -58,103 +58,103 @@ class Editor(db.Model):
     username = db.Column(db.String(32), nullable=False)
     password = db.Column(db.String(32), nullable=False)
 
-def rand_jitter(arr):
-    stdev = .01*(max(arr)-min(arr))
-    return arr + np.random.randn(len(arr)) * stdev
+# def rand_jitter(arr):
+#     stdev = .01*(max(arr)-min(arr))
+#     return arr + np.random.randn(len(arr)) * stdev
 
-def yule(x, a, b, c):
-    return a * (c**x) / (x**b)
+# def yule(x, a, b, c):
+#     return a * (c**x) / (x**b)
 
-def uniqueness(title="Figure 1"):
-    x = []
-    y = []
-    languages = Language.query.all()
-    for phoneme in Phoneme.query.all():
-        frequencies = Frequency.query.filter_by(phoneme_id=phoneme.id).all()
-        values = [x.value for x in frequencies]
-        x.append(len(frequencies) / len(languages))
-        y.append(sum(values) / len(frequencies))
-    print(corrcoef(x, y))
-    b, m = polyfit(x, y, 1)
-    plt.scatter(rand_jitter(x), y, s=7)
-    bestfit = [b + m * number for number in x]
-    plt.plot(x, bestfit, '-')
-    plt.xlabel("Phoneme Presence in Studied Languages")
-    plt.ylabel("Average Frequency / %")
-    plt.title(title)
-    plt.show()
+# def uniqueness(title="Figure 1"):
+#     x = []
+#     y = []
+#     languages = Language.query.all()
+#     for phoneme in Phoneme.query.all():
+#         frequencies = Frequency.query.filter_by(phoneme_id=phoneme.id).all()
+#         values = [x.value for x in frequencies]
+#         x.append(len(frequencies) / len(languages))
+#         y.append(sum(values) / len(frequencies))
+#     print(corrcoef(x, y))
+#     b, m = polyfit(x, y, 1)
+#     plt.scatter(rand_jitter(x), y, s=7)
+#     bestfit = [b + m * number for number in x]
+#     plt.plot(x, bestfit, '-')
+#     plt.xlabel("Phoneme Presence in Studied Languages")
+#     plt.ylabel("Average Frequency / %")
+#     plt.title(title)
+#     plt.show()
 
-def phoneme_rank(yule=True, detail=1000, textOutput=False, title="Figure 2"):
-    speakers = {
-        'Spanish (Castillian)': 46.4,
-        'English (American)': 308.9,
-        'Spanish (American)': 435.7,
-        'Japanese': 128,
-        'German': 76,
-        'Arabic': 315,
-        'Mandarin': 909,
-        'Portuguese (Brazilian)': 194,
-        'French': 76.8,
-        'Hindi': 260,
-        'Polish': 40.3,
-        'Samoan': 0.40742,
-        'Kaiwa': 0.0021,
-        'Bengali': 243,
-        'Swedish': 12.8,
-        'Malay': 60.7,
-        'Italian': 64.8
-    }
-    total = sum(speakers.values())
-    calculation = sorted([(phoneme.name, sum([frequency.value * speakers[Language.query.filter_by(id=frequency.language_id).first().name] / (total * len(Language.query.filter_by(name=Language.query.filter_by(id=frequency.language_id).first().name).all()) ) for frequency in Frequency.query.filter_by(phoneme_id=phoneme.id).all()])) for phoneme in Phoneme.query.limit(detail).all()], key=lambda x:-x[1])
-    labels, data = zip(*calculation)
-    if textOutput:
-        return labels
+# def phoneme_rank(yule=True, detail=1000, textOutput=False, title="Figure 2"):
+#     speakers = {
+#         'Spanish (Castillian)': 46.4,
+#         'English (American)': 308.9,
+#         'Spanish (American)': 435.7,
+#         'Japanese': 128,
+#         'German': 76,
+#         'Arabic': 315,
+#         'Mandarin': 909,
+#         'Portuguese (Brazilian)': 194,
+#         'French': 76.8,
+#         'Hindi': 260,
+#         'Polish': 40.3,
+#         'Samoan': 0.40742,
+#         'Kaiwa': 0.0021,
+#         'Bengali': 243,
+#         'Swedish': 12.8,
+#         'Malay': 60.7,
+#         'Italian': 64.8
+#     }
+#     total = sum(speakers.values())
+#     calculation = sorted([(phoneme.name, sum([frequency.value * speakers[Language.query.filter_by(id=frequency.language_id).first().name] / (total * len(Language.query.filter_by(name=Language.query.filter_by(id=frequency.language_id).first().name).all()) ) for frequency in Frequency.query.filter_by(phoneme_id=phoneme.id).all()])) for phoneme in Phoneme.query.limit(detail).all()], key=lambda x:-x[1])
+#     labels, data = zip(*calculation)
+#     if textOutput:
+#         return labels
 
-    x = range(len(data)+1)[1:]
-    if yule:
-        # plot raw data
-        plt.plot(x, data, 'b-')
+#     x = range(len(data)+1)[1:]
+#     if yule:
+#         # plot raw data
+#         plt.plot(x, data, 'b-')
 
-        # Calculate Yule Distribution
-        popt, pcov = curve_fit(yule, x, data)
-        print(popt)
+#         # Calculate Yule Distribution
+#         popt, pcov = curve_fit(yule, x, data)
+#         print(popt)
 
-        # Calculate R^2
-        ss_res = np.sum((data - yule(x, *popt))**2)
-        ss_tot = np.sum((data - np.mean(data))**2)
-        print(1 - (ss_res / ss_tot))
+#         # Calculate R^2
+#         ss_res = np.sum((data - yule(x, *popt))**2)
+#         ss_tot = np.sum((data - np.mean(data))**2)
+#         print(1 - (ss_res / ss_tot))
 
-        plt.yscale("log")
-        plt.plot(x, yule(x, *popt), "r--")
-    else:
-        plt.bar(x, data)
+#         plt.yscale("log")
+#         plt.plot(x, yule(x, *popt), "r--")
+#     else:
+#         plt.bar(x, data)
 
-    # plt.xlim(xmin=1)
-    plt.xlabel("Phoneme Rank")
-    plt.ylabel("Frequency weighted by Number of Speakers / %")
-    plt.title(title)
-    plt.show()
+#     # plt.xlim(xmin=1)
+#     plt.xlabel("Phoneme Rank")
+#     plt.ylabel("Frequency weighted by Number of Speakers / %")
+#     plt.title(title)
+#     plt.show()
 
-def phoible_compare():
-    # lang_id = Language.query.filter_by(name=lang).first().id
-    with open("phoible", "r") as f:
-        phoible = f.read().splitlines()
-    phonemes = [phoneme.name for phoneme in Phoneme.query.all()]
-    return [x for x in phoible if x in phonemes]
+# def phoible_compare():
+#     # lang_id = Language.query.filter_by(name=lang).first().id
+#     with open("phoible", "r") as f:
+#         phoible = f.read().splitlines()
+#     phonemes = [phoneme.name for phoneme in Phoneme.query.all()]
+#     return [x for x in phoible if x in phonemes]
 
-def rank_compare(textOutput=True, title="Rank Comparison"):
-    phoible = phoible_compare()
-    original = phoneme_rank(textOutput=True)
-    phoible_ranks = list(range(len(phoible)+1))[1:]
-    original_ranks = [original.index(phoneme) + 1 for phoneme in phoible]
-    if textOutput:
-        return {"kendall": stats.kendalltau(phoible_ranks, original_ranks),
-                "spearman": stats.spearmanr(phoible_ranks, original_ranks)}
-    plt.scatter(phoible_ranks, original_ranks)
-    plt.xlabel("Phoible Rank")
-    plt.ylabel("Weighted Rank")
-    plt.title(title)
-    plt.show()
+# def rank_compare(textOutput=True, title="Rank Comparison"):
+#     phoible = phoible_compare()
+#     original = phoneme_rank(textOutput=True)
+#     phoible_ranks = list(range(len(phoible)+1))[1:]
+#     original_ranks = [original.index(phoneme) + 1 for phoneme in phoible]
+#     if textOutput:
+#         return {"kendall": stats.kendalltau(phoible_ranks, original_ranks),
+#                 "spearman": stats.spearmanr(phoible_ranks, original_ranks)}
+#     plt.scatter(phoible_ranks, original_ranks)
+#     plt.xlabel("Phoible Rank")
+#     plt.ylabel("Weighted Rank")
+#     plt.title(title)
+#     plt.show()
 
 
 def database():
@@ -368,41 +368,41 @@ def editors():
     else:
         return "Bad Request"
 
-@app.route("/directory", methods=["GET","POST"])
-def directory():
-    rootDir = "directory/"
-    if request.method == "GET":
-        return jsonify({"dir": rootDir})
-    if request.method == "POST":
-        received = request.get_json()
-        files = []
-        for filename in os.listdir(received["path"]):
-            file = {}
-            filedir = received["path"]+filename
-            isdir = os.path.isdir(filedir)
-            file["name"] = filename
-            file["date"] = datetime.datetime.fromtimestamp(os.path.getmtime(filedir)).strftime("%B %d, %Y")
-            if(isdir):
-                file["size"] = "- - - -"
-                file["folder"] = "true"
-            else:
-                file["size"] = sizeof_fmt(os.path.getsize(filedir))
-                file["folder"] = "false"
-            
-            files.append(file)
-        return jsonify(files)
+# @app.route("/directory", methods=["GET","POST"])
+# def directory():
+#     rootDir = "directory/"
+#     if request.method == "GET":
+#         return jsonify({"dir": rootDir})
+#     if request.method == "POST":
+#         received = request.get_json()
+#         files = []
+#         for filename in os.listdir(received["path"]):
+#             file = {}
+#             filedir = received["path"]+filename
+#             isdir = os.path.isdir(filedir)
+#             file["name"] = filename
+#             file["date"] = datetime.datetime.fromtimestamp(os.path.getmtime(filedir)).strftime("%B %d, %Y")
+#             if(isdir):
+#                 file["size"] = "- - - -"
+#                 file["folder"] = "true"
+#             else:
+#                 file["size"] = sizeof_fmt(os.path.getsize(filedir))
+#                 file["folder"] = "false"
 
-def sizeof_fmt(num, suffix='B'):
-    for unit in ['','K','M','G','T','P','E','Z']:
-        if abs(num) < 1024.0:
-            return "%3.1f%s%s" % (num, unit, suffix)
-        num /= 1024.0
-    return "%.1f%s%s" % (num, 'Yi', suffix)
+#             files.append(file)
+#         return jsonify(files)
 
-@app.route("/directory/<path:file>", methods=["GET"])
-def dir_download(file):
-    print(file)
-    return send_file(file)
+# def sizeof_fmt(num, suffix='B'):
+#     for unit in ['','K','M','G','T','P','E','Z']:
+#         if abs(num) < 1024.0:
+#             return "%3.1f%s%s" % (num, unit, suffix)
+#         num /= 1024.0
+#     return "%.1f%s%s" % (num, 'Yi', suffix)
+
+# @app.route("/directory/<path:file>", methods=["GET"])
+# def dir_download(file):
+#     print(file)
+#     return send_file(file)
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0")
