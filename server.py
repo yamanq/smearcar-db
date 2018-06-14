@@ -11,6 +11,7 @@ import datetime
 import os
 # from scipy.optimize import curve_fit
 # from scipy import stats
+from functools import lru_cache
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///data.db'
