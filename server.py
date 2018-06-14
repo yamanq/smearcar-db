@@ -158,7 +158,7 @@ def phoneme_rank(yule=True, detail=1000, textOutput=False, title="Figure 2", dat
 #     plt.title(title)
 #     plt.show()
 
-
+@lru_cache(maxsize=8)
 def database():
     final = {'values': []}
     final['languages'] = [f.name for f in Language.query.order_by(Language.name).all()]
