@@ -1,17 +1,19 @@
 from flask import Flask
 from flask import render_template, jsonify, request
 from flask_sqlalchemy import SQLAlchemy
-# from numpy.polynomial.polynomial import polyfit
-# from numpy import corrcoef
-# import numpy as np
-# import tkinter
-# import matplotlib.pyplot as plt
 from flask import send_file
+
 import datetime
 import os
-# from scipy.optimize import curve_fit
-# from scipy import stats
 from functools import lru_cache
+
+from numpy.polynomial.polynomial import polyfit
+from numpy import corrcoef
+import numpy as np
+import tkinter
+import matplotlib.pyplot as plt
+from scipy.optimize import curve_fit
+from scipy import stats
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///data.db'
